@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Dokumenty do szkody</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one narrow column like a phone form; the authorization is a "sheet of paper" laid on the graphite workshop background */
+:root{
+  --bg:#eef0f2; --panel:#ffffff; --ink:#1b2129; --muted:#5d6874; --line:#d5dade;
+  --accent:#e0a100; --accent-ink:#1b2129; --ok:#1f7a4d; --warn:#b3261e; --paper:#fffdf8;
+  --f-display:"Archivo",system-ui,sans-serif; --f-body:"IBM Plex Sans",system-ui,sans-serif; --f-doc:"Source Serif 4",Georgia,serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#14181d; --panel:#1d232a; --ink:#e8ecef; --muted:#9aa5b0; --line:#323b45;
+  --accent:#f2b81c; --accent-ink:#14181d; --ok:#5fc48f; --warn:#ff8a80; --paper:#fffdf8; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14181d; --panel:#1d232a; --ink:#e8ecef; --muted:#9aa5b0; --line:#323b45;
+  --accent:#f2b81c; --accent-ink:#14181d; --ok:#5fc48f; --warn:#ff8a80; --paper:#fffdf8; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5}
+.wrap{max-width:560px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
+header{display:flex;flex-direction:column;gap:6px}
+.brand{font-family:var(--f-display);font-weight:800;letter-spacing:.06em;font-size:13px;text-transform:uppercase;color:var(--muted)}
+.brand b{color:var(--ink)}
+h1{font-family:var(--f-display);font-weight:800;font-size:28px;line-height:1.15;margin:0;text-wrap:balance}
+.test{align-self:flex-start;background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:4px}
+.lead{color:var(--muted);margin:0}
+.case{display:grid;grid-template-columns:auto 1fr;gap:2px 14px;font-size:14px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.case dt{color:var(--muted)} .case dd{margin:0;font-weight:500;font-variant-numeric:tabular-nums;min-width:0;overflow-wrap:anywhere}
+section.step{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.step h2{font-family:var(--f-display);font-weight:700;font-size:19px;margin:0;display:flex;align-items:center;gap:10px}
+.num{flex:none;width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--panel);display:grid;place-items:center;font-size:14px}
+.step.done .num{background:var(--ok)}
+.hint{color:var(--muted);font-size:14px;margin:0}
+.pick{display:flex;align-items:center;justify-content:center;gap:8px;border:2px dashed var(--line);border-radius:10px;padding:14px;font-weight:600;cursor:pointer;text-align:center}
+.pick:hover,.pick:focus-within{border-color:var(--accent)}
+.pick input{position:absolute;opacity:0;width:1px;height:1px}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px}
+.thumbs img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+/* paper */
+.paper{background:var(--paper);color:#1b1b1b;font-family:var(--f-doc);font-size:13.5px;line-height:1.55;padding:22px 20px;border-radius:4px;box-shadow:0 1px 0 rgba(0,0,0,.08),0 8px 24px rgba(0,0,0,.12);overflow-wrap:anywhere}
+.paper .top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12.5px}
+.paper h3{text-align:center;font-family:var(--f-doc);font-weight:600;font-size:16px;margin:18px 0 12px}
+.paper p{margin:0 0 9px}
+.paper .car{display:grid;grid-template-columns:auto 1fr;gap:0 10px;margin:10px 0}
+.paper .car span:nth-child(odd){color:#555}
+.docs{display:flex;flex-direction:column;gap:14px}
+.vat{display:flex;flex-direction:column;gap:8px;background:var(--bg);border-radius:10px;padding:12px}
+.opts{display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:15px}
+.opts span{min-width:110px;color:var(--muted)}
+.paper ol,.paper ul{margin:0 0 9px;padding-left:22px}
+.paper .small{font-size:12px;color:#444}
+.sigbox{margin-top:14px;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.sigbox img{height:70px;max-width:220px;object-fit:contain}
+.sigline{width:220px;max-width:100%;border-top:1px dotted #333;text-align:center;font-size:12px;color:#444;padding-top:2px}
+.pad{position:relative;border:1px solid var(--line);border-radius:10px;background:#fff;touch-action:none}
+.pad canvas{display:block;width:100%;height:170px;border-radius:10px;cursor:crosshair}
+.pad .ph{position:absolute;inset:auto 0 12px;text-align:center;color:#9aa;font-size:13px;pointer-events:none}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+button{font:inherit;font-weight:600;border-radius:10px;padding:12px 16px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+button:focus-visible,.pick:focus-within,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);width:100%;font-size:17px;padding:15px}
+button:disabled{opacity:.5;cursor:not-allowed}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--muted)}
+input[type=tel],input[type=text]{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--muted)}
+.check input{margin-top:3px;width:18px;height:18px;flex:none}
+.msg{border-radius:10px;padding:12px 14px;font-size:14.5px}
+.msg.ok{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ink);border:1px solid var(--ok)}
+.msg.err{background:color-mix(in srgb,var(--warn) 12%,transparent);border:1px solid var(--warn)}
+.alt{font-size:14px;color:var(--muted)}
+.alt summary{cursor:pointer;font-weight:600;color:var(--ink)}
+.sigs{display:flex;gap:28px;flex-wrap:wrap}
+#wspBox[hidden]{display:none!important}
+footer{font-size:12px;color:var(--muted);text-align:center}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><b>AUTO-KOMPLEX</b> Witold Jurasz · Węgierska Górka</div>
+    <span class="test">Wersja próbna – dane fikcyjne</span>
+    <h1>Dokumenty do naprawy auta</h1>
+    <p class="lead">Trzy kroki, około 3 minut. Wszystko trafi prosto do warsztatu.</p>
+  </header>
+
+  <dl class="case" id="case"></dl>
+
+  <section class="step" id="s1">
+    <h2><span class="num">1</span>Dowód rejestracyjny</h2>
+    <p class="hint">Zdjęcie obu stron dowodu, tak żeby było widać dane właściciela i VIN.</p>
+    <label class="pick"><input type="file" id="fDowod" accept="image/*" multiple>📷 Dodaj zdjęcie dowodu</label>
+    <div class="thumbs" id="tDowod"></div>
+  </section>
+
+  <section class="step" id="s2">
+    <h2><span class="num">2</span>Zdjęcia uszkodzeń</h2>
+    <p class="hint">Całe auto z czterech rogów, potem uszkodzenia z bliska i licznik.</p>
+    <label class="pick"><input type="file" id="fFoto" accept="image/*" multiple>📷 Dodaj zdjęcia auta</label>
+    <div class="thumbs" id="tFoto"></div>
+  </section>
+
+  <section class="step" id="s2b">
+    <h2><span class="num">3</span>Numer VIN i tabliczka znamionowa</h2>
+    <p class="hint">Potrzebne przynajmniej jedno zdjęcie: tabliczki znamionowej albo numeru VIN pod przednią szybą (lewy dolny róg, widać z zewnątrz).</p>
+    <ul class="hint" id="vinHint" style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px"></ul>
+    <label class="pick"><input type="file" id="fVin" accept="image/*" multiple>📷 Dodaj zdjęcie VIN / tabliczki</label>
+    <div class="thumbs" id="tVin"></div>
+  </section>
+
+  <section class="step" id="s3">
+    <h2><span class="num">4</span><span id="docTitle">Upoważnienie do podpisu</span></h2>
+    <p class="hint" id="docHint">Proszę sprawdzić dane i podpisać się palcem w ramce pod dokumentem.</p>
+    <div id="vatBox" class="vat" hidden>
+      <p class="hint" style="margin:0">Proszę zaznaczyć (potrzebne do upoważnienia):</p>
+      <div class="opts"><span>Płatnik VAT?</span><label><input type="radio" name="vat" value="nie" checked> nie</label><label><input type="radio" name="vat" value="tak"> tak</label></div>
+      <div class="opts" id="odlRow" hidden><span>Odliczenie VAT</span><label><input type="radio" name="odl" value="100%" checked> 100%</label><label><input type="radio" name="odl" value="50%"> 50%</label></div>
+    </div>
+    <div id="docs" class="docs"></div>
+    <div class="pad" id="pad"><canvas id="sig" aria-label="Pole na podpis"></canvas><div class="ph" id="ph">Podpis palcem tutaj</div></div>
+    <div class="row"><button type="button" id="clear">Wyczyść podpis</button></div>
+    <label class="check"><input type="checkbox" id="wspOn"><span><b>Auto ma współwłaściciela</b> (druga osoba wpisana w dowodzie) – on też musi podpisać</span></label>
+    <div id="wspBox" hidden style="display:flex;flex-direction:column;gap:10px">
+      <label class="f" for="wspImie">Imię i nazwisko współwłaściciela<input type="text" id="wspImie" autocomplete="off"></label>
+      <label class="f" for="wspAdres">Adres współwłaściciela<input type="text" id="wspAdres" autocomplete="off"></label>
+      <div class="pad" id="pad2"><canvas id="sig2" aria-label="Pole na podpis współwłaściciela"></canvas><div class="ph" id="ph2">Podpis współwłaściciela palcem tutaj</div></div>
+      <div class="row"><button type="button" id="clear2">Wyczyść podpis współwłaściciela</button></div>
+    </div>
+    <details class="alt">
+      <summary>Wolę wydrukować i podpisać na papierze</summary>
+      <p>Pobierz upoważnienie, wydrukuj, podpisz i wrzuć tutaj jego zdjęcie.</p>
+      <div class="row"><button type="button" id="dl">Pobierz upoważnienie (PDF)</button></div>
+      <p id="dlMsg" hidden></p>
+      <label class="pick"><input type="file" id="fPapier" accept="image/*,application/pdf">📷 Dodaj zdjęcie podpisanego upoważnienia</label>
+      <div class="thumbs" id="tPapier"></div>
+    </details>
+  </section>
+
+  <section class="step">
+    <label class="f" for="tel">Telefon kontaktowy<input type="tel" id="tel" autocomplete="tel"></label>
+    <label class="check"><input type="checkbox" id="rodo"><span>Wyrażam zgodę na przetwarzanie moich danych przez AUTO-KOMPLEX Witold Jurasz, ul. Kolejowa 7, 34-350 Węgierska Górka, w celu naprawy pojazdu i likwidacji szkody u ubezpieczyciela.</span></label>
+    <button class="primary" id="wa" type="button">Wyślij przez WhatsApp</button>
+    <p class="hint" style="margin:0">Otworzy się WhatsApp ze wszystkimi zdjęciami i podpisanymi dokumentami – wystarczy wybrać czat z warsztatem i wysłać.</p>
+    <div id="out" hidden></div>
+  </section>
+
+  <footer>AUTO-KOMPLEX Witold Jurasz · NIP 553-212-63-07 · ul. Kolejowa 7, 34-350 Węgierska Górka</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+/* ---- dane szkody (wersja próbna, fikcyjne) ---- */
+/* druk: "auto" = sam dobiera po ubezpieczycielu (Hestia/UNIQA -> druk EIS + oświadczenie, reszta -> upoważnienie warsztatu)
+   klient_typ: "osoba" albo "firma" (dla firmy uzupełnij FIRMA_KLIENTA) */
+/* Dane szkody są w linku po znaku # (base64url z JSON) – nie są zapisane na serwerze */
+function wczytajDane(){ try{ const h=location.hash.slice(1); if(!h) return null;
+  const b=h.replace(/-/g,"+").replace(/_/g,"/"); const bin=atob(b+"===".slice((b.length+3)%4));
+  return JSON.parse(new TextDecoder().decode(Uint8Array.from(bin,c=>c.charCodeAt(0)))); }catch(e){ return null; } }
+const DANE = wczytajDane();
+if(!DANE){ document.body.innerHTML='<div style="font:17px system-ui;padding:40px 20px;max-width:520px;margin:auto"><h2>Nieprawidłowy link</h2><p>Ten link jest niepełny. Proszę poprosić warsztat AUTO-KOMPLEX o nowy link (tel. 512 211 888).</p></div>'; throw new Error("brak danych"); }
+const SZKODA = Object.assign({ id:"", druk:"auto", klient_typ:"osoba", ubezpieczyciel:"", nr_szkody:"", klient:"", adres:"", tel:"", wspolwlasciciel:null, marka:"", model:"", nr_rej:"", vin:"" }, DANE.s||DANE);
+const FIRMA_KLIENTA = Object.assign({ nazwa:"", miasto:"", ulica:"", nip:"", reprezentant:"" }, DANE.f||{});
+const FIRMA = { nazwa:"Auto-Komplex Witold Jurasz", adres:"ul. Kolejowa 7, 34-350 Węgierska Górka", bank:"Banku Spółdzielczym w Węgierskiej Górce", konto:"34 8131 0005 0012 9802 2000 0010", whatsapp:"48512211888" };
+
+const $ = id => document.getElementById(id);
+const today = new Date().toLocaleDateString("pl-PL");
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+$("case").innerHTML = [["Klient",SZKODA.klient],["Auto",SZKODA.marka+" "+SZKODA.model+", "+SZKODA.nr_rej],["Szkoda",SZKODA.ubezpieczyciel+", "+SZKODA.nr_szkody]]
+  .map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join("");
+$("tel").value = SZKODA.tel;
+
+/* gdzie szukać VIN i tabliczki – wg marki */
+const SZYBA = "za przednią szybą, w lewym dolnym rogu (widać z zewnątrz)";
+const VIN_GDZIE = {
+  vag: ["VIN: "+SZYBA+"; wybity pod maską na ścianie przy szybie albo w podłodze pod prawym przednim fotelem (pod klapką w wykładzinie).", "Tabliczka: naklejka na słupku drzwi kierowcy. Dodatkowo naklejka z danymi auta w bagażniku, pod podłogą przy kole zapasowym."],
+  toyota: ["VIN: "+SZYBA+"; wybity w podłodze pod prawym przednim fotelem albo pod maską na ścianie przy szybie.", "Tabliczka: naklejka na słupku drzwi kierowcy (między drzwiami przednimi i tylnymi)."],
+  opel: ["VIN: "+SZYBA+"; wybity w podłodze przy prawym przednim fotelu, pod klapką w wykładzinie.", "Tabliczka: naklejka na słupku drzwi kierowcy albo pasażera."],
+  ford: ["VIN: "+SZYBA+"; wybity w podłodze przy prawym przednim fotelu, pod klapką w wykładzinie.", "Tabliczka: naklejka na słupku drzwi kierowcy albo pasażera."],
+  francuskie: ["VIN: "+SZYBA+"; wybity pod maską, zwykle przy prawym amortyzatorze albo na ścianie przy szybie.", "Tabliczka: naklejka na słupku drzwi kierowcy albo pasażera."],
+  fiat: ["VIN: "+SZYBA+"; wybity pod maską, zwykle na prawym nadkolu albo ścianie przy szybie.", "Tabliczka: naklejka na słupku drzwi kierowcy albo pod maską."],
+  koreanskie: ["VIN: "+SZYBA+"; wybity pod maską na ścianie przy szybie albo w podłodze pod prawym przednim fotelem.", "Tabliczka: naklejka na słupku drzwi kierowcy."],
+  japonskie: ["VIN: "+SZYBA+"; wybity pod maską na ścianie przy szybie.", "Tabliczka: naklejka na słupku drzwi kierowcy albo pod maską."],
+  mercedes: ["VIN: "+SZYBA+"; wybity w podłodze pod prawym przednim fotelem albo pod maską.", "Tabliczka: naklejka na słupku drzwi kierowcy."],
+  bmw: ["VIN: "+SZYBA+"; wybity pod maską przy prawym amortyzatorze.", "Tabliczka: naklejka na słupku drzwi kierowcy albo pasażera."],
+  inne: ["VIN: najczęściej "+SZYBA+", a także wybity pod maską lub w podłodze przy prawym przednim fotelu.", "Tabliczka: najczęściej naklejka na słupku drzwi kierowcy."]
+};
+const GRUPA = {volkswagen:"vag",vw:"vag",skoda:"vag","škoda":"vag",seat:"vag",cupra:"vag",audi:"vag",toyota:"toyota",lexus:"toyota",opel:"opel",ford:"ford",renault:"francuskie",dacia:"francuskie",peugeot:"francuskie",citroen:"francuskie","citroën":"francuskie",ds:"francuskie",fiat:"fiat","alfa romeo":"fiat",jeep:"fiat",hyundai:"koreanskie",kia:"koreanskie",nissan:"japonskie",honda:"japonskie",mazda:"japonskie",suzuki:"japonskie",mitsubishi:"japonskie",subaru:"japonskie","mercedes":"mercedes","mercedes-benz":"mercedes",bmw:"bmw",mini:"bmw"};
+$("vinHint").innerHTML = [...VIN_GDZIE[GRUPA[SZKODA.marka.trim().toLowerCase()]||"inne"]].map(t=>`<li>${esc(t)}</li>`).join("");
+
+const UB = SZKODA.ubezpieczyciel.toLowerCase();
+const EIS = SZKODA.druk==="eis" || (SZKODA.druk==="auto" && /hestia|ergo|uniqa/.test(UB));
+const RODZAJ = EIS ? (SZKODA.klient_typ==="firma" ? "eis_firma" : "eis_osoba") : "wlasne";
+if(RODZAJ==="eis_osoba") $("vatBox").hidden=false;
+if(EIS){ $("docTitle").textContent="Upoważnienie i oświadczenie"; $("docHint").textContent="Dwa dokumenty dla ubezpieczyciela. Proszę sprawdzić dane i podpisać się raz palcem w ramce – podpis trafi na oba."; }
+document.querySelectorAll('input[name=vat],input[name=odl]').forEach(r=>r.addEventListener("change",()=>{ $("odlRow").hidden = vatVal()!=="tak"; renderPaper(); }));
+const vatVal = ()=> (document.querySelector('input[name=vat]:checked')||{}).value||"nie";
+const odlVal = ()=> (document.querySelector('input[name=odl]:checked')||{}).value||"100%";
+const B = s=>`<b>${esc(s)}</b>`;
+const SIG = (url,label)=>`<div class="sigbox">${url?`<img src="${url}" alt="Podpis">`:`<div style="height:70px"></div>`}<div class="sigline">${label}</div></div>`;
+const WSP = ()=>{ const n=$("wspImie").value.trim(); return $("wspOn").checked && n ? {imie:n, adres:$("wspAdres").value.trim()} : null; };
+const SIGS = (label)=>{ const w=WSP(); return w ? `<div class="sigs">${SIG(pad1.url(), label+" – "+esc(SZKODA.klient))}${SIG(pad2.url(), label+" – "+esc(w.imie))}</div>` : SIG(pad1.url(),label); };
+const SERWIS = `${esc(FIRMA.nazwa)}, ${esc(FIRMA.adres)}, NIP 553-212-63-07`;
+
+
+function docWlasne(sig){ return `
+  <div class="top"><div>${esc(FIRMA.nazwa)}<br>${esc(FIRMA.adres)}</div><div>Węgierska Górka, ${today}</div></div>
+  <h3>Upoważnienie do naprawy bezgotówkowej</h3>
+  <p>Ja, niżej podpisany(a) ${B(SZKODA.klient+", "+SZKODA.adres)}${WSP()?` oraz współwłaściciel ${B(WSP().imie+(WSP().adres?", "+WSP().adres:""))}`:""}, upoważniam firmę <b>„${esc(FIRMA.nazwa)}”</b> z siedzibą: ${B(FIRMA.adres)} do załatwienia wszelkich formalności oraz do odbioru w Towarzystwie Ubezpieczeniowym ${B(SZKODA.ubezpieczyciel)} odszkodowania za części zamienne, naprawę pojazdu oraz ewentualne wypożyczenie samochodu zastępczego, a także dokumentacji związanej z likwidowaną szkodą, łącznie z kalkulacją naprawy.</p>
+  <div class="car"><span>Marka i model:</span>${B(SZKODA.marka+" "+SZKODA.model)}<span>Nr rejestracyjny:</span>${B(SZKODA.nr_rej)}<span>Nr nadwozia (VIN):</span>${B(SZKODA.vin)}<span>Nr szkody:</span>${B(SZKODA.nr_szkody)}</div>
+  <p>Jednocześnie przyjmuję do wiadomości, że upoważnienie może być cofnięte tylko za zgodą upoważnionego, oraz zobowiązuję się do zwrotu wszelkich kosztów naprawy w przypadku niewypłacenia odszkodowania przez Towarzystwo Ubezpieczeniowe.</p>
+  <p>Wypłatę proszę przesłać na konto upoważnionego w ${esc(FIRMA.bank)}, nr rachunku: ${B(FIRMA.konto)}.</p>
+  <p>Upoważniam też firmę ${esc(FIRMA.nazwa)} do wystawienia faktury VAT bez mojego podpisu za naprawę ww. pojazdu.</p>
+  ${SIGS("data i podpis")}`; }
+
+function docEisOsoba(sig){ const vat = vatVal()==="tak" ? `jestem płatnikiem VAT i mogę odliczyć VAT od kosztów naprawy pojazdu w wysokości ${odlVal()}` : `nie jestem płatnikiem VAT i nie mogę odliczyć VAT od kosztów naprawy pojazdu`;
+  return `
+  <div class="top"><div></div><div>Węgierska Górka, ${today}</div></div>
+  <h3>Upoważnienie</h3>
+  ${WSP() ? `<p>Ja niżej podpisany:<br>1. ${B(SZKODA.klient)}, zamieszkały/a ${B(SZKODA.adres)}<br>2. ${B(WSP().imie)}, zamieszkały/a ${B(WSP().adres)}</p>` : `<p>Ja niżej podpisany: ${B(SZKODA.klient)}, zamieszkały/a ${B(SZKODA.adres)}</p>`}
+  <p>w związku ze zgłoszeniem Ubezpieczycielowi tj. ${B(SZKODA.ubezpieczyciel)} („Ubezpieczyciel”) szkody komunikacyjnej nr ${B(SZKODA.nr_szkody)} („Szkoda”) dotyczącej pojazdu marki ${B(SZKODA.marka+" "+SZKODA.model)} nr rej. ${B(SZKODA.nr_rej)} („Pojazd”), jako zlecający naprawę Pojazdu w: ${B(SERWIS)} („Serwis”), na podstawie art. 921¹ i nast. Kodeksu cywilnego niniejszym upoważniam:</p>
+  <p><b>1. Serwis</b> do wykonania naprawy Pojazdu oraz, w przypadku zlecenia, wynajmu pojazdu zastępczego oraz wykonania innych usług związanych z ww. naprawą i wynajmem pojazdu, jak również do:</p>
+  <ol type="a"><li>przyjęcia zapłaty za dokonaną naprawę Pojazdu, wynajem pojazdu zastępczego, inne usługi związane z ww.;</li><li>udzielenia EIS informacji o Szkodzie i wykonywanych usługach oraz wydania oceny technicznej i kalkulacji;</li><li>pozyskiwania informacji dotyczącej likwidacji Szkody, w tym informacji o odmowie bądź przyjęciu przez Ubezpieczyciela odpowiedzialności za Szkodę oraz wysokości ustalonego i wypłaconego odszkodowania.</li></ol>
+  <p>W przypadku odmowy przez Ubezpieczyciela wypłaty odszkodowania w całości lub w części zobowiązuję się do uregulowania należności z tytułu wykonanej naprawy, wynajmu pojazdu i innych usług bezpośrednio do Serwisu w ciągu 7 dni od daty otrzymania wezwania do jej uiszczenia.</p>
+  <p><b>2. Efficient Insurance Solutions sp. z o.o. z siedzibą w Gdańsku („EIS”)</b> do przyjęcia odszkodowania należnego mi od Ubezpieczyciela z tytułu likwidacji Szkody, po potwierdzeniu odpowiedzialności Ubezpieczyciela za Szkodę, na numer rachunku bankowego EIS: 68 1140 1065 0000 2066 8200 1011 oraz do przekazania otrzymanej kwoty do Serwisu tytułem zapłaty za usługi wykonane w ramach likwidacji Szkody tj. naprawę Pojazdu, wynajem pojazdu zastępczego, inne usługi związane z ww. naprawą i wynajmem. Ponadto upoważniam EIS do podejmowania innych niezbędnych czynności związanych z likwidacją Szkody, w tym:</p>
+  <ol type="a"><li>uzyskiwania informacji oraz dokumentów dotyczących Szkody oraz wykonywanych usług;</li><li>przekazywania Serwisowi informacji o odmowie bądź przyjęciu przez Ubezpieczyciela odpowiedzialności za Szkodę oraz wysokości ustalonego i wypłaconego odszkodowania.</li></ol>
+  <p class="small">Upoważnienie może być odwołane lub zmienione wyłącznie w formie pisemnej po wcześniejszym uzgodnieniu z Serwisem. W przypadku odwołania lub zmiany upoważnienia, zobowiązuję się uiścić wszelkie koszty poniesione przez Serwis (np. koszty przygotowania Pojazdu do oględzin, oględzin, wykonania kalkulacji, zakupionych części i wykonanych usług) w terminie do 7 dni od daty odwołania lub zmiany upoważnienia.</p>
+  <p>Oświadczam, że ${B(vat)}.</p>
+  ${SIGS("podpis")}`; }
+
+function docEisFirma(sig){ const F=FIRMA_KLIENTA; return `
+  <div class="top"><div></div><div>Węgierska Górka, ${today}</div></div>
+  <h3>Upoważnienie</h3>
+  <p>W związku ze szkodą komunikacyjną nr ${B(SZKODA.nr_szkody)} zgłoszoną w Towarzystwie Ubezpieczeń ${B(SZKODA.ubezpieczyciel)} dotyczącą uszkodzenia pojazdu marki ${B(SZKODA.marka+" "+SZKODA.model)} nr rej. ${B(SZKODA.nr_rej)},</p>
+  <p>Firma ${B(F.nazwa)} z siedzibą w ${B(F.miasto)}, ul. ${B(F.ulica)}, numer NIP ${B(F.nip)}, reprezentowana przez ${B(F.reprezentant)}</p>
+  <p>niniejszym upoważnia: Efficient Insurance Solutions Sp. z o.o., 80-309 Gdańsk, Aleja Grunwaldzka 472F, KRS 0000299311, NIP 585-14-38-495, nr konta: 68 1140 1065 0000 2066 8200 1011, która zleca naprawę pojazdu w imieniu Towarzystwa Ubezpieczeń, do:</p>
+  <ul><li>odbioru wypłaty odszkodowania za naprawę pojazdu i wynajem pojazdu zastępczego, a także innych usług dodatkowych związanych z naprawą i wynajmem pojazdu zastępczego;</li><li>podjęcia wszystkich niezbędnych czynności związanych z likwidacją szkody komunikacyjnej (z wyłączeniem szkód całkowitych).</li></ul>
+  <p>Jednocześnie upoważniam podmiot (dalej Serwis): ${B(SERWIS)} do udzielenia wszelkich informacji o likwidowanej szkodzie komunikacyjnej oraz wydawania ocen technicznych i kalkulacji, a w przypadku szkody całkowitej do odbioru wypłaty odszkodowania za poniesione koszty tj. parkowanie pojazdu, samochód zastępczy, holowanie, usługę door to door.</p>
+  <p>W przypadku braku wypłaty odszkodowania w całości lub w części przez Ubezpieczyciela, Poszkodowany zobowiązuje się pokryć pełną kwotę należności z tytułu dokonanej naprawy na rzecz jej wykonawcy (Serwis) w ciągu 7 dni od daty otrzymania wezwania do jej uiszczenia.</p>
+  <p class="small">Upoważnienie może być odwołane/zmienione wyłącznie pisemnie po wcześniejszym uzgodnieniu tego faktu z warsztatem. W przypadku odwołania lub zmiany upoważnienia należy pisemnie poinformować wszystkie strony – Ubezpieczyciela, Efficient Insurance Solutions Sp. z o.o., Serwis. Wszelkie koszty poniesione przez Serwis przed odwołaniem upoważnienia Poszkodowany ureguluje w ciągu 7 dni od daty odwołania upoważnienia.</p>
+  ${SIGS("podpis właściciela / osoby upoważnionej z firmy")}`; }
+
+function docOswiadczenie(sig){ return `
+  <div class="top"><div>${esc(FIRMA.nazwa)}<br>${esc(FIRMA.adres)}<br>witold.jurasz@gmail.com</div><div>Węgierska Górka, ${today}</div></div>
+  <h3>Oświadczenie</h3>
+  <p>Oświadczam, że w związku z likwidacją szkody nr ${B(SZKODA.nr_szkody)} przekazano mi informacje dotyczące:</p>
+  <ul><li>zakresu i sposobu planowanej naprawy pojazdu,</li><li>planowanego czasu naprawy,</li><li>planowanej daty rozpoczęcia naprawy,</li><li>jakości części, jakie mają być użyte podczas naprawy.</li></ul>
+  ${SIGS("czytelny podpis osoby uprawnionej")}`; }
+
+const DOKUMENTY = { wlasne:[["upowaznienie",docWlasne]], eis_osoba:[["upowaznienie_EIS",docEisOsoba],["oswiadczenie",docOswiadczenie]], eis_firma:[["upowaznienie_EIS_firma",docEisFirma],["oswiadczenie",docOswiadczenie]] }[RODZAJ];
+function renderPaper(){
+  $("docs").innerHTML = DOKUMENTY.map(([k,f])=>`<div class="paper" data-doc="${k}">${f()}</div>`).join(""); }
+
+/* ---- zdjęcia: zmniejszanie w telefonie ---- */
+const files = { dowod:[], foto:[], vin:[], papier:[] };
+async function shrink(file){
+  if(!file.type.startsWith("image/")) return file;
+  const bmp = await createImageBitmap(file).catch(()=>null); if(!bmp) return file;
+  const s = Math.min(1, 1920/Math.max(bmp.width,bmp.height));
+  const c = document.createElement("canvas"); c.width=Math.round(bmp.width*s); c.height=Math.round(bmp.height*s);
+  c.getContext("2d").drawImage(bmp,0,0,c.width,c.height);
+  return await new Promise(r=>c.toBlob(b=>r(b||file),"image/jpeg",0.85));
+}
+function hook(inputId, key, thumbsId, stepId){
+  $(inputId).addEventListener("change", async e=>{
+    for(const f of e.target.files){ const b = await shrink(f); files[key].push({blob:b,name:f.name});
+      if(b.type.startsWith("image/")){ const i=document.createElement("img"); i.src=URL.createObjectURL(b); i.alt=f.name; $(thumbsId).append(i);} }
+    if(stepId && files[key].length) $(stepId).classList.add("done");
+    e.target.value="";
+  });
+}
+hook("fDowod","dowod","tDowod","s1"); hook("fFoto","foto","tFoto","s2"); hook("fVin","vin","tVin","s2b"); hook("fPapier","papier","tPapier","s3");
+
+/* ---- podpis palcem (właściciel + ewentualny współwłaściciel) ---- */
+function makePad(cvId, phId, onChange){
+  const cv=$(cvId), ctx=cv.getContext("2d"), st={has:false}; let drawing=false, last=null;
+  st.size=()=>{ const r=cv.getBoundingClientRect(); if(!r.width) return; const d=window.devicePixelRatio||1; const old=st.has?cv.toDataURL():null;
+    cv.width=r.width*d; cv.height=r.height*d; ctx.setTransform(d,0,0,d,0,0); ctx.lineWidth=2.4; ctx.lineCap="round"; ctx.lineJoin="round"; ctx.strokeStyle="#0b2a6b";
+    if(old){const im=new Image(); im.onload=()=>ctx.drawImage(im,0,0,r.width,r.height); im.src=old;} };
+  st.size(); addEventListener("resize", st.size);
+  const pt=e=>{const r=cv.getBoundingClientRect(); return {x:e.clientX-r.left,y:e.clientY-r.top};};
+  cv.addEventListener("pointerdown",e=>{drawing=true; last=pt(e); cv.setPointerCapture(e.pointerId); $(phId).hidden=true;});
+  cv.addEventListener("pointermove",e=>{ if(!drawing) return; const p=pt(e); ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; st.has=true; });
+  const end=()=>{ if(drawing&&st.has) onChange(); drawing=false; };
+  cv.addEventListener("pointerup",end); cv.addEventListener("pointercancel",end);
+  st.clear=()=>{ ctx.clearRect(0,0,cv.width,cv.height); st.has=false; $(phId).hidden=false; onChange(); };
+  st.url=()=> st.has ? cv.toDataURL("image/png") : null;
+  return st;
+}
+const refresh=()=>{ renderPaper(); const ok = (pad1.has && (!WSP() || pad2.has)) || files.papier.length; $("s3").classList.toggle("done", !!ok); };
+const pad1 = makePad("sig","ph",refresh), pad2 = makePad("sig2","ph2",refresh);
+$("clear").onclick=()=>pad1.clear(); $("clear2").onclick=()=>pad2.clear();
+$("wspOn").addEventListener("change",()=>{ $("wspBox").hidden=!$("wspOn").checked; pad2.size(); refresh(); });
+["wspImie","wspAdres"].forEach(id=>$(id).addEventListener("input",renderPaper));
+if(SZKODA.wspolwlasciciel && SZKODA.wspolwlasciciel.imie){ $("wspOn").checked=true; $("wspBox").hidden=false; $("wspImie").value=SZKODA.wspolwlasciciel.imie; $("wspAdres").value=SZKODA.wspolwlasciciel.adres||""; pad2.size(); }
+renderPaper();
+const hasSig=()=>pad1.has;
+
+/* ---- dokument jako obraz / PDF ---- */
+async function paperImages(){ const r=[]; for(const el of document.querySelectorAll("#docs .paper")){ const c=await paperImage(el); if(c) r.push({name:el.dataset.doc,canvas:c}); } return r; }
+async function paperImage(src){
+  if(!window.html2canvas) return null;
+  /* kopia na kartce A4 (794 px), czcionka systemowa – bez sklejania slow */
+  const box = document.createElement("div");
+  box.style.cssText = "position:fixed;left:-10000px;top:0;width:794px;";
+  const p = src.cloneNode(true);
+  p.style.cssText = "width:794px;min-height:1123px;box-sizing:border-box;padding:70px 80px;font-family:'Times New Roman',Times,serif;font-size:17px;line-height:1.6;letter-spacing:normal;word-spacing:normal;font-kerning:none;text-rendering:optimizeSpeed;background:#fff;color:#111;box-shadow:none;border-radius:0";
+  p.querySelectorAll("h3").forEach(h=>{h.style.fontFamily="inherit";h.style.fontSize="21px";h.style.margin="36px 0 24px";});
+  p.querySelectorAll(".top").forEach(t=>t.style.fontSize="15px");
+  if(p.textContent.length>3000){ p.style.fontSize="15px"; p.style.lineHeight="1.45"; p.style.padding="50px 64px"; }
+  p.querySelectorAll(".sigbox img").forEach(i=>{i.style.height="90px";i.style.maxWidth="280px";});
+  p.querySelectorAll(".sigline").forEach(s=>s.style.width="280px");
+  box.append(p); document.body.append(box);
+  try{ return await html2canvas(p,{scale:2,backgroundColor:"#ffffff",windowWidth:1000}); }
+  finally{ box.remove(); }
+}
+async function paperPdf(){
+  const imgs = await paperImages(); if(!imgs.length || !window.jspdf) return null;
+  const pdf = new window.jspdf.jsPDF({unit:"mm",format:"a4"});
+  imgs.forEach(({canvas:c},i)=>{ if(i) pdf.addPage(); const h=Math.min(297, c.height*210/c.width); pdf.addImage(c.toDataURL("image/jpeg",0.92),"JPEG",0,0,210,h); });
+  return pdf.output("blob");
+}
+$("dl").onclick = async ()=>{
+  const m=$("dlMsg"); m.hidden=false; m.textContent="Przygotowuję plik…";
+  try{ const blob = await paperPdf();
+    if(!blob){ m.textContent="Pobieranie nie działa w tym telefonie. Można zrobić zrzut ekranu dokumentu powyżej i go wydrukować."; return; }
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=`upowaznienie ${SZKODA.nr_rej.replace(/\s/g,"")}.pdf`; document.body.append(a); a.click(); a.remove(); m.textContent="Gotowe – plik zapisany.";
+  }catch(e){ m.textContent="Nie udało się zapisać pliku. Można zrobić zrzut ekranu dokumentu powyżej."; }
+};
+
+/* ---- braki przed wysyłką ---- */
+function braki(){ const brak=[]; if(!files.dowod.length) brak.push("zdjęcie dowodu"); if(!files.foto.length) brak.push("zdjęcia auta"); if(!files.vin.length) brak.push("zdjęcie tabliczki znamionowej lub VIN");
+  if(!pad1.has && !files.papier.length) brak.push("podpis na upoważnieniu");
+  if($("wspOn").checked && !$("wspImie").value.trim()) brak.push("imię i nazwisko współwłaściciela");
+  if(WSP() && !pad2.has && !files.papier.length) brak.push("podpis współwłaściciela");
+  if(!$("rodo").checked) brak.push("zaznaczona zgoda"); return brak; }
+
+/* ---- wysyłka przez WhatsApp (udostępnianie plików z telefonu) ---- */
+$("wa").onclick = async ()=>{
+  const out=$("out"); out.hidden=false; out.className="msg";
+  const brak=braki(); if(brak.length){ out.className="msg err"; out.textContent="Brakuje: "+brak.join(", ")+"."; return; }
+  const btn=$("wa"); btn.disabled=true; out.textContent="Przygotowuję pliki…";
+  const nr=SZKODA.nr_rej.replace(/\s/g,"");
+  const lista=[];
+  const add=(arr,pref)=>arr.forEach((f,i)=>{ const typ=f.blob.type||"image/jpeg"; const ext=typ.includes("pdf")?"pdf":"jpg"; lista.push(new File([f.blob],`${pref}_${i+1}_${nr}.${ext}`,{type:typ})); });
+  add(files.dowod,"dowod"); add(files.foto,"auto"); add(files.vin,"VIN"); add(files.papier,"upowaznienie_papier");
+  let docs=[];
+  if(pad1.has){ docs = await paperImages().catch(()=>[]);
+    for(const {name,canvas} of docs){ const b=await new Promise(r=>canvas.toBlob(r,"image/jpeg",0.9)); if(b) lista.push(new File([b],`${name}_podpisane_${nr}.jpg`,{type:"image/jpeg"})); } }
+  const tekst = `Dokumenty do szkody ${SZKODA.nr_szkody} – ${SZKODA.marka} ${SZKODA.model} ${SZKODA.nr_rej} – ${SZKODA.klient}`+(WSP()?` (współwł. ${WSP().imie})`:"")+(RODZAJ==="eis_osoba"?`. VAT: ${vatVal()}${vatVal()==="tak"?" "+odlVal():""}`:"")+`. Tel.: ${$("tel").value.trim()}`;
+  try{
+    if(navigator.canShare && navigator.canShare({files:lista})){
+      await navigator.share({files:lista, title:"Dokumenty do szkody", text:tekst});
+      out.className="msg ok"; out.innerHTML="<b>Dziękujemy!</b> Jeśli WhatsApp się otworzył i wiadomość poszła do warsztatu – to wszystko.";
+    } else { throw new Error("brak udostępniania plików"); }
+  }catch(e){
+    if(e && e.name==="AbortError"){ out.className="msg"; out.textContent="Wysyłanie anulowane – można spróbować jeszcze raz."; btn.disabled=false; return; }
+    out.className="msg err";
+    out.innerHTML=`<b>Ten telefon nie pozwala wysłać plików jednym przyciskiem.</b> Proszę zapisać obrazek z podpisanym dokumentem poniżej (przytrzymać palcem → zapisz) i wysłać go razem ze zdjęciami do warsztatu na WhatsApp: <a href="https://wa.me/${FIRMA.whatsapp}?text=${encodeURIComponent(tekst)}">otwórz czat z warsztatem</a>.`;
+    for(const {canvas:c} of (docs.length?docs:await paperImages().catch(()=>[]))){ const i=document.createElement("img"); i.src=c.toDataURL("image/jpeg",0.9); i.alt="Podpisany dokument"; i.style.cssText="width:100%;margin-top:10px;border-radius:6px"; out.append(i); }
+  }
+  btn.disabled=false;
+};
+
+/* ---- wysyłka do warsztatu ---- */
+async function fallback(out, btn){
+  btn.disabled=false; out.className="msg err";
+  out.innerHTML="<b>Ta strona nie mogła wysłać plików.</b> Proszę przytrzymać palcem obrazek poniżej, zapisać go i odesłać na WhatsApp razem ze zdjęciami.";
+  const imgs = await paperImages().catch(()=>[]);
+  for(const {canvas:c} of imgs){ const i=document.createElement("img"); i.src=c.toDataURL("image/jpeg",0.9); i.alt="Podpisany dokument"; i.style.cssText="width:100%;margin-top:10px;border-radius:6px"; out.append(i); }
+}
+</script>
+
+</body>
+</html>
