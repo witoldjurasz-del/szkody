@@ -77,6 +77,7 @@ input[type=tel],input[type=text]{font:inherit;color:var(--ink);background:var(--
 .alt summary{cursor:pointer;font-weight:600;color:var(--ink)}
 .sigs{display:flex;gap:28px;flex-wrap:wrap}
 #wspBox[hidden]{display:none!important}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 footer{font-size:12px;color:var(--muted);text-align:center}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -96,14 +97,14 @@ footer{font-size:12px;color:var(--muted);text-align:center}
   <section class="step" id="s1">
     <h2><span class="num">1</span>Dowód rejestracyjny</h2>
     <p class="hint">Zdjęcie obu stron dowodu, tak żeby było widać dane właściciela i VIN.</p>
-    <label class="pick"><input type="file" id="fDowod" accept="image/*" multiple>📷 Dodaj zdjęcie dowodu</label>
+    <div class="row2"><label class="pick"><input type="file" id="fDowodCam" accept="image/*" capture="environment">📷 Zrób zdjęcie</label><label class="pick"><input type="file" id="fDowod" accept="image/*" multiple>🖼️ Z galerii</label></div>
     <div class="thumbs" id="tDowod"></div>
   </section>
 
   <section class="step" id="s2">
     <h2><span class="num">2</span>Zdjęcia uszkodzeń</h2>
     <p class="hint">Całe auto z czterech rogów, potem uszkodzenia z bliska i licznik.</p>
-    <label class="pick"><input type="file" id="fFoto" accept="image/*" multiple>📷 Dodaj zdjęcia auta</label>
+    <div class="row2"><label class="pick"><input type="file" id="fFotoCam" accept="image/*" capture="environment">📷 Zrób zdjęcie</label><label class="pick"><input type="file" id="fFoto" accept="image/*" multiple>🖼️ Z galerii</label></div>
     <div class="thumbs" id="tFoto"></div>
   </section>
 
@@ -111,7 +112,7 @@ footer{font-size:12px;color:var(--muted);text-align:center}
     <h2><span class="num">3</span>Numer VIN i tabliczka znamionowa</h2>
     <p class="hint">Potrzebne przynajmniej jedno zdjęcie: tabliczki znamionowej albo numeru VIN pod przednią szybą (lewy dolny róg, widać z zewnątrz).</p>
     <ul class="hint" id="vinHint" style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px"></ul>
-    <label class="pick"><input type="file" id="fVin" accept="image/*" multiple>📷 Dodaj zdjęcie VIN / tabliczki</label>
+    <div class="row2"><label class="pick"><input type="file" id="fVinCam" accept="image/*" capture="environment">📷 Zrób zdjęcie</label><label class="pick"><input type="file" id="fVin" accept="image/*" multiple>🖼️ Z galerii</label></div>
     <div class="thumbs" id="tVin"></div>
   </section>
 
@@ -277,7 +278,7 @@ function hook(inputId, key, thumbsId, stepId){
     e.target.value="";
   });
 }
-hook("fDowod","dowod","tDowod","s1"); hook("fFoto","foto","tFoto","s2"); hook("fVin","vin","tVin","s2b"); hook("fPapier","papier","tPapier","s3");
+hook("fDowod","dowod","tDowod","s1"); hook("fDowodCam","dowod","tDowod","s1"); hook("fFotoCam","foto","tFoto","s2"); hook("fVinCam","vin","tVin","s2b"); hook("fFoto","foto","tFoto","s2"); hook("fVin","vin","tVin","s2b"); hook("fPapier","papier","tPapier","s3");
 
 /* ---- podpis palcem (właściciel + ewentualny współwłaściciel) ---- */
 function makePad(cvId, phId, onChange){
