@@ -147,8 +147,9 @@ footer{font-size:12px;color:var(--muted);text-align:center}
   <section class="step">
     <label class="f" for="tel">Telefon kontaktowy<input type="tel" id="tel" autocomplete="tel"></label>
     <label class="check"><input type="checkbox" id="rodo"><span>Wyrażam zgodę na przetwarzanie moich danych przez AUTO-KOMPLEX Witold Jurasz, ul. Kolejowa 7, 34-350 Węgierska Górka, w celu naprawy pojazdu i likwidacji szkody u ubezpieczyciela.</span></label>
+    <button class="primary" id="dysk" type="button" hidden>Wyślij do warsztatu</button>
     <button class="primary" id="wa" type="button">Wyślij przez WhatsApp</button>
-    <p class="hint" style="margin:0">Otworzy się WhatsApp ze wszystkimi zdjęciami i podpisanymi dokumentami – wystarczy wybrać czat z warsztatem i wysłać.</p>
+    <p class="hint" id="waHint" style="margin:0">Otworzy się WhatsApp ze wszystkimi zdjęciami i podpisanymi dokumentami – wystarczy wybrać czat z warsztatem i wysłać.</p>
     <div id="out" hidden></div>
   </section>
 
@@ -169,7 +170,7 @@ const DANE = wczytajDane();
 if(!DANE){ document.body.innerHTML='<div style="font:17px system-ui;padding:40px 20px;max-width:520px;margin:auto"><h2>Nieprawidłowy link</h2><p>Ten link jest niepełny. Proszę poprosić warsztat AUTO-KOMPLEX o nowy link (tel. 512 211 888).</p></div>'; throw new Error("brak danych"); }
 const SZKODA = Object.assign({ id:"", druk:"auto", klient_typ:"osoba", ubezpieczyciel:"", nr_szkody:"", klient:"", adres:"", tel:"", wspolwlasciciel:null, marka:"", model:"", nr_rej:"", vin:"" }, DANE.s||DANE);
 const FIRMA_KLIENTA = Object.assign({ nazwa:"", miasto:"", ulica:"", nip:"", reprezentant:"" }, DANE.f||{});
-const FIRMA = { nazwa:"Auto-Komplex Witold Jurasz", adres:"ul. Kolejowa 7, 34-350 Węgierska Górka", bank:"Banku Spółdzielczym w Węgierskiej Górce", konto:"34 8131 0005 0012 9802 2000 0010", whatsapp:"48512211888" };
+const FIRMA = { nazwa:"Auto-Komplex Witold Jurasz", adres:"ul. Kolejowa 7, 34-350 Węgierska Górka", bank:"Banku Spółdzielczym w Węgierskiej Górce", konto:"34 8131 0005 0012 9802 2000 0010", whatsapp:"48512211888", skrypt:"https://script.google.com/macros/s/AKfycbwSk-oWNKhPE0eiZAb-xDZ4xwRnLJuRIWOpapWx6i_StbNZ7xNL1g62_HyC4pseQpDz/exec" };
 
 const $ = id => document.getElementById(id);
 const today = new Date().toLocaleDateString("pl-PL");
@@ -371,6 +372,35 @@ $("wa").onclick = async ()=>{
   btn.disabled=false;
 };
 
+
+/* ---- wysyłka prosto do teczki szkody na Dysku Google ---- */
+const KLUCZ = DANE.k || "";
+if(KLUCZ){ $("dysk").hidden=false; $("wa").classList.remove("primary"); $("wa").style.cssText="width:100%;margin-top:4px"; $("wa").textContent="Albo wyślij przez WhatsApp"; $("waHint").textContent="Przycisk „Wyślij do warsztatu” zapisze wszystko od razu u nas. WhatsApp – tylko jeśli tamto nie zadziała."; }
+const b64 = blob => new Promise((ok,err)=>{ const r=new FileReader(); r.onload=()=>ok(String(r.result).split(",")[1]); r.onerror=err; r.readAsDataURL(blob); });
+async function wyslijJeden(body){ let last;
+  for(let t=0;t<3;t++){ try{ const r=await fetch(FIRMA.skrypt,{method:"POST",body:JSON.stringify(Object.assign({k:KLUCZ,s:SZKODA},body))}); const j=await r.json(); if(j.ok) return j; last=new Error(j.err||"blad"); }catch(e){ last=e; } await new Promise(r=>setTimeout(r,1500)); }
+  throw last; }
+$("dysk").onclick = async ()=>{
+  const out=$("out"); out.hidden=false; out.className="msg";
+  const brak=braki(); if(brak.length){ out.className="msg err"; out.textContent="Brakuje: "+brak.join(", ")+"."; return; }
+  const btn=$("dysk"); btn.disabled=true; out.textContent="Przygotowuję pliki…";
+  const nr=SZKODA.nr_rej.replace(/\s/g,"");
+  const lista=[];
+  const add=(arr,pref,folder)=>arr.forEach((f,i)=>{ const typ=f.blob.type||"image/jpeg"; const ext=typ.includes("pdf")?"pdf":"jpg"; lista.push({folder,nazwa:`${pref}_${i+1}_${nr}.${ext}`,typ,blob:f.blob}); });
+  add(files.dowod,"dowod","dokumenty"); add(files.foto,"auto","zdjecia"); add(files.vin,"VIN","dokumenty"); add(files.papier,"upowaznienie_papier","dokumenty");
+  if(pad1.has){ const docs = await paperImages().catch(()=>[]);
+    for(const {name,canvas} of docs){ const b=await new Promise(r=>canvas.toBlob(r,"image/jpeg",0.9)); if(b) lista.push({folder:"dokumenty",nazwa:`${name}_podpisane_${nr}.jpg`,typ:"image/jpeg",blob:b}); } }
+  const tekst = `Dokumenty do szkody ${SZKODA.nr_szkody} – ${SZKODA.marka} ${SZKODA.model} ${SZKODA.nr_rej} – ${SZKODA.klient}`+(WSP()?` (współwł. ${WSP().imie}${WSP().adres?", "+WSP().adres:""})`:"")+(RODZAJ==="eis_osoba"?`\nVAT: ${vatVal()}${vatVal()==="tak"?" "+odlVal():""}`:"")+`\nTel.: ${$("tel").value.trim()}\nWysłano: ${new Date().toLocaleString("pl-PL")}`;
+  try{
+    for(let i=0;i<lista.length;i++){ const f=lista[i]; out.textContent=`Wysyłam ${i+1} z ${lista.length}…`;
+      await wyslijJeden({folder:f.folder, plik:{nazwa:f.nazwa, typ:f.typ, b64:await b64(f.blob)}}); }
+    await wyslijJeden({folder:"dokumenty", tekst:{nazwa:`dane klienta ${nr}.txt`, tresc:tekst}});
+    out.className="msg ok"; out.innerHTML="<b>Dziękujemy!</b> Wszystkie zdjęcia i podpisane dokumenty dotarły do warsztatu AUTO-KOMPLEX. Można zamknąć stronę.";
+  }catch(e){
+    out.className="msg err"; out.innerHTML="<b>Nie udało się wysłać przez internet.</b> Proszę nacisnąć niżej „Albo wyślij przez WhatsApp”.";
+    btn.disabled=false; return;
+  }
+};
 /* ---- wysyłka do warsztatu ---- */
 async function fallback(out, btn){
   btn.disabled=false; out.className="msg err";
