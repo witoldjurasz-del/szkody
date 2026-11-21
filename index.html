@@ -332,7 +332,7 @@ async function paperImage(src){
 }
 function pdfZ(imgs){ if(!imgs.length || !window.jspdf) return null;
   const pdf = new window.jspdf.jsPDF({unit:"mm",format:"a4"});
-  imgs.forEach(({canvas:c},i)=>{ if(i) pdf.addPage(); const h=Math.min(297, c.height*210/c.width); pdf.addImage(c.toDataURL("image/jpeg",0.92),"JPEG",0,0,210,h); });
+  imgs.forEach(({canvas:c},i)=>{ if(i) pdf.addPage(); const r=c.height/c.width; const w=Math.min(210,297/r), h=w*r; pdf.addImage(c.toDataURL("image/jpeg",0.92),"JPEG",(210-w)/2,0,w,h); });
   return pdf.output("blob"); }
 async function paperPdf(){
   const imgs = await paperImages(); if(!imgs.length || !window.jspdf) return null;
