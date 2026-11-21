@@ -312,7 +312,7 @@ async function paperImage(src){
   if(!window.html2canvas) return null;
   /* kopia na kartce A4 (794 px), czcionka systemowa – bez sklejania slow */
   const box = document.createElement("div");
-  box.style.cssText = "position:fixed;left:-10000px;top:0;width:794px;";
+  box.style.cssText = "position:absolute;left:0;top:0;width:794px;z-index:-1;background:#fff;";
   const p = src.cloneNode(true);
   p.style.cssText = "width:794px;min-height:1123px;box-sizing:border-box;padding:70px 80px;font-family:Georgia,'Times New Roman',Times,serif;font-size:17px;text-align:left;line-height:1.6;letter-spacing:normal;word-spacing:normal;font-kerning:none;text-rendering:optimizeSpeed;background:#fff;color:#111;box-shadow:none;border-radius:0";
   p.querySelectorAll("h3").forEach(h=>{h.style.fontFamily="inherit";h.style.fontSize="21px";h.style.margin="36px 0 24px";});
@@ -320,11 +320,15 @@ async function paperImage(src){
   if(p.textContent.length>3000){ p.style.fontSize="15px"; p.style.lineHeight="1.45"; p.style.padding="50px 64px"; }
   p.querySelectorAll(".sigbox img").forEach(i=>{i.style.height="90px";i.style.maxWidth="280px";});
   p.querySelectorAll(".sigline").forEach(s=>s.style.width="280px");
-  box.append(p); document.body.append(box);
+  box.append(p); document.body.prepend(box);
   if(document.fonts&&document.fonts.ready){ try{ await document.fonts.ready; }catch(e){} }
-  try{ return await html2canvas(p,{scale:2,backgroundColor:"#ffffff",windowWidth:1000,foreignObjectRendering:true}); }
-  catch(e){ return await html2canvas(p,{scale:2,backgroundColor:"#ffffff",windowWidth:1000}); }
-  finally{ box.remove(); }
+  const sx=window.scrollX, sy=window.scrollY; window.scrollTo(0,0);
+  const opt={scale:2,backgroundColor:"#ffffff",windowWidth:1000,scrollX:0,scrollY:0};
+  const bialy=c=>{ try{ const d=c.getContext("2d").getImageData(4,4,1,1).data; return d[0]>200&&d[1]>200&&d[2]>200; }catch(e){ return false; } };
+  try{
+    try{ const c=await html2canvas(p,Object.assign({foreignObjectRendering:true},opt)); if(c&&c.width>100&&bialy(c)) return c; }catch(e){}
+    return await html2canvas(p,opt);
+  } finally{ box.remove(); window.scrollTo(sx,sy); }
 }
 function pdfZ(imgs){ if(!imgs.length || !window.jspdf) return null;
   const pdf = new window.jspdf.jsPDF({unit:"mm",format:"a4"});
