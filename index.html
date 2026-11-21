@@ -314,16 +314,22 @@ async function paperImage(src){
   const box = document.createElement("div");
   box.style.cssText = "position:fixed;left:-10000px;top:0;width:794px;";
   const p = src.cloneNode(true);
-  p.style.cssText = "width:794px;min-height:1123px;box-sizing:border-box;padding:70px 80px;font-family:'Times New Roman',Times,serif;font-size:17px;line-height:1.6;letter-spacing:normal;word-spacing:normal;font-kerning:none;text-rendering:optimizeSpeed;background:#fff;color:#111;box-shadow:none;border-radius:0";
+  p.style.cssText = "width:794px;min-height:1123px;box-sizing:border-box;padding:70px 80px;font-family:Georgia,'Times New Roman',Times,serif;font-size:17px;text-align:left;line-height:1.6;letter-spacing:normal;word-spacing:normal;font-kerning:none;text-rendering:optimizeSpeed;background:#fff;color:#111;box-shadow:none;border-radius:0";
   p.querySelectorAll("h3").forEach(h=>{h.style.fontFamily="inherit";h.style.fontSize="21px";h.style.margin="36px 0 24px";});
   p.querySelectorAll(".top").forEach(t=>t.style.fontSize="15px");
   if(p.textContent.length>3000){ p.style.fontSize="15px"; p.style.lineHeight="1.45"; p.style.padding="50px 64px"; }
   p.querySelectorAll(".sigbox img").forEach(i=>{i.style.height="90px";i.style.maxWidth="280px";});
   p.querySelectorAll(".sigline").forEach(s=>s.style.width="280px");
   box.append(p); document.body.append(box);
-  try{ return await html2canvas(p,{scale:2,backgroundColor:"#ffffff",windowWidth:1000}); }
+  if(document.fonts&&document.fonts.ready){ try{ await document.fonts.ready; }catch(e){} }
+  try{ return await html2canvas(p,{scale:2,backgroundColor:"#ffffff",windowWidth:1000,foreignObjectRendering:true}); }
+  catch(e){ return await html2canvas(p,{scale:2,backgroundColor:"#ffffff",windowWidth:1000}); }
   finally{ box.remove(); }
 }
+function pdfZ(imgs){ if(!imgs.length || !window.jspdf) return null;
+  const pdf = new window.jspdf.jsPDF({unit:"mm",format:"a4"});
+  imgs.forEach(({canvas:c},i)=>{ if(i) pdf.addPage(); const h=Math.min(297, c.height*210/c.width); pdf.addImage(c.toDataURL("image/jpeg",0.92),"JPEG",0,0,210,h); });
+  return pdf.output("blob"); }
 async function paperPdf(){
   const imgs = await paperImages(); if(!imgs.length || !window.jspdf) return null;
   const pdf = new window.jspdf.jsPDF({unit:"mm",format:"a4"});
@@ -389,7 +395,8 @@ $("dysk").onclick = async ()=>{
   const add=(arr,pref,folder)=>arr.forEach((f,i)=>{ const typ=f.blob.type||"image/jpeg"; const ext=typ.includes("pdf")?"pdf":"jpg"; lista.push({folder,nazwa:`${pref}_${i+1}_${nr}.${ext}`,typ,blob:f.blob}); });
   add(files.dowod,"dowod","dokumenty"); add(files.foto,"auto","zdjecia"); add(files.vin,"VIN","dokumenty"); add(files.papier,"upowaznienie_papier","dokumenty");
   if(pad1.has){ const docs = await paperImages().catch(()=>[]);
-    for(const {name,canvas} of docs){ const b=await new Promise(r=>canvas.toBlob(r,"image/jpeg",0.9)); if(b) lista.push({folder:"dokumenty",nazwa:`${name}_podpisane_${nr}.jpg`,typ:"image/jpeg",blob:b}); } }
+    for(const {name,canvas} of docs){ const b=await new Promise(r=>canvas.toBlob(r,"image/jpeg",0.9)); if(b) lista.push({folder:"dokumenty",nazwa:`${name}_podpisane_${nr}.jpg`,typ:"image/jpeg",blob:b}); }
+    try{ const pb=pdfZ(docs); if(pb) lista.push({folder:"dokumenty",nazwa:`DOKUMENTY_PODPISANE_A4_${nr}.pdf`,typ:"application/pdf",blob:pb}); }catch(e){} }
   const tekst = `Dokumenty do szkody ${SZKODA.nr_szkody} – ${SZKODA.marka} ${SZKODA.model} ${SZKODA.nr_rej} – ${SZKODA.klient}`+(WSP()?` (współwł. ${WSP().imie}${WSP().adres?", "+WSP().adres:""})`:"")+(RODZAJ==="eis_osoba"?`\nVAT: ${vatVal()}${vatVal()==="tak"?" "+odlVal():""}`:"")+`\nTel.: ${$("tel").value.trim()}\nWysłano: ${new Date().toLocaleString("pl-PL")}`;
   try{
     for(let i=0;i<lista.length;i++){ const f=lista[i]; out.textContent=`Wysyłam ${i+1} z ${lista.length}…`;
