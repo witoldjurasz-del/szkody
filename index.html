@@ -80,44 +80,75 @@ input[type=tel],input[type=text]{font:inherit;color:var(--ink);background:var(--
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 footer{font-size:12px;color:var(--muted);text-align:center}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+[hidden]{display:none!important}
+/* ---- kreator krok po kroku ---- */
+.scr{display:none;flex-direction:column;gap:14px}
+.scr.on{display:flex}
+.prog{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.krokTxt{font-size:13px;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.scr h2{font-family:var(--f-display);font-weight:800;font-size:24px;line-height:1.2;margin:0}
+.big{font-size:17px;margin:0}
+.licz{font-weight:700;font-size:16px}
+.licz.ok{color:var(--ok)}
+.cambtn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;font-size:19px;padding:18px;background:var(--accent);color:var(--accent-ink);border:0;border-radius:12px;font-weight:700}
+.galeria{display:block;text-align:center;font-size:14px;color:var(--muted);text-decoration:underline;cursor:pointer;padding:6px}
+.galeria input{position:absolute;opacity:0;width:1px;height:1px}
+.thumbs .t{position:relative}
+.thumbs .t img,.thumbs .t .ph0{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;border:1px solid var(--line);display:block}
+.thumbs .t .ph0{background:var(--panel);display:grid;place-items:center;font-size:12px;color:var(--muted)}
+.thumbs .t b{position:absolute;right:4px;bottom:4px;background:rgba(0,0,0,.65);color:#fff;border-radius:10px;font-size:12px;padding:1px 6px}
+.thumbs .t b.ok{background:var(--ok)} .thumbs .t b.err{background:var(--warn)}
+.nav{position:sticky;bottom:0;display:grid;grid-template-columns:1fr 2fr;gap:10px;padding:12px 0 calc(8px + env(safe-area-inset-bottom,0px));background:var(--bg)}
+.nav button.dalej{background:var(--ink);color:var(--bg);border-color:var(--ink);font-size:17px}
+.nav button.dalej:disabled{opacity:.35}
+.auto{display:block;margin:0 auto;width:150px;height:auto}
+.wznow{font-size:14px}
+/* aparat na pełnym ekranie */
+#cam{position:fixed;inset:0;z-index:50;background:#000;color:#fff;display:flex;flex-direction:column}
+#cam[hidden]{display:none}
+#cam video{flex:1;min-height:0;width:100%;object-fit:cover;background:#000}
+#cam .gora{position:absolute;top:0;left:0;right:0;padding:calc(12px + env(safe-area-inset-top,0px)) 16px 14px;background:linear-gradient(rgba(0,0,0,.75),rgba(0,0,0,0));display:flex;gap:12px;align-items:flex-start}
+#cam .gora .txt{flex:1;font-size:19px;font-weight:700;line-height:1.25;text-shadow:0 1px 3px #000}
+#cam .gora .txt small{display:block;font-size:14px;font-weight:500;opacity:.9;margin-top:4px}
+#cam .gora svg{width:64px;flex:none;background:rgba(255,255,255,.12);border-radius:8px}
+#cam .dol{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;padding:14px 16px calc(18px + env(safe-area-inset-bottom,0px));background:#000}
+#cam .mini{display:flex;gap:4px;overflow:hidden}
+#cam .mini img{width:40px;height:40px;object-fit:cover;border-radius:6px;border:1px solid #555}
+#cam .spust{width:78px;height:78px;border-radius:50%;border:5px solid #fff;background:#fff;box-shadow:inset 0 0 0 4px #000;padding:0}
+#cam .spust:active{transform:scale(.92)}
+#cam .prawa{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+#cam .gotowe{background:var(--accent);color:#000;border:0;font-size:17px;padding:12px 18px}
+#cam .latarka{background:transparent;color:#fff;border:1px solid #666;padding:6px 10px;font-size:14px}
+#cam .blysk{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;transition:opacity .25s}
+#cam .blysk.on{opacity:.8;transition:none}
+#cam .licznik{position:absolute;left:50%;transform:translateX(-50%);bottom:130px;background:rgba(0,0,0,.6);padding:4px 12px;border-radius:14px;font-weight:700}
 </style>
-
 </head>
 <body>
 <div class="wrap">
   <header>
     <div class="brand"><b>AUTO-KOMPLEX</b> Witold Jurasz · Węgierska Górka</div>
-    
-    <h1>Dokumenty do naprawy auta</h1>
-    <p class="lead">Trzy kroki, około 3 minut. Wszystko trafi prosto do warsztatu.</p>
+    <div class="prog" aria-hidden="true"><i id="progBar"></i></div>
+    <div class="krokTxt" id="krokTxt"></div>
   </header>
 
-  <dl class="case" id="case"></dl>
-
-  <section class="step" id="s1">
-    <h2><span class="num">1</span>Dowód rejestracyjny</h2>
-    <p class="hint">Zdjęcie obu stron dowodu, tak żeby było widać dane właściciela i VIN.</p>
-    <div class="row2"><label class="pick"><input type="file" id="fDowodCam" accept="image/*" capture="environment">📷 Zrób zdjęcie</label><label class="pick"><input type="file" id="fDowod" accept="image/*" multiple>🖼️ Z galerii</label></div>
-    <div class="thumbs" id="tDowod"></div>
+  <!-- 0. start -->
+  <section class="scr" id="k0">
+    <h1>Dokumenty do naprawy auta</h1>
+    <p class="big">Kilka krótkich kroków, około 5 minut. Telefon poprowadzi po kolei: co sfotografować i co podpisać.</p>
+    <dl class="case" id="case"></dl>
+    <p class="hint">Zdjęcia robi się w tej stronie – każde od razu trafia do warsztatu. Przy pierwszym zdjęciu telefon zapyta o dostęp do aparatu – proszę kliknąć „Zezwól”.</p>
+    <p class="msg wznow" id="wznow" hidden></p>
+    <div class="nav" style="grid-template-columns:1fr"><button type="button" class="dalej" id="start">Zaczynamy →</button></div>
   </section>
 
-  <section class="step" id="s2">
-    <h2><span class="num">2</span>Zdjęcia uszkodzeń</h2>
-    <p class="hint">Całe auto z czterech rogów, potem uszkodzenia z bliska i licznik.</p>
-    <div class="row2"><label class="pick"><input type="file" id="fFotoCam" accept="image/*" capture="environment">📷 Zrób zdjęcie</label><label class="pick"><input type="file" id="fFoto" accept="image/*" multiple>🖼️ Z galerii</label></div>
-    <div class="thumbs" id="tFoto"></div>
-  </section>
+  <!-- 1–5. zdjęcia (wypełniane ze skryptu) -->
+  <div id="fotoKroki"></div>
 
-  <section class="step" id="s2b">
-    <h2><span class="num">3</span>Numer VIN i tabliczka znamionowa</h2>
-    <p class="hint">Potrzebne przynajmniej jedno zdjęcie: tabliczki znamionowej albo numeru VIN pod przednią szybą (lewy dolny róg, widać z zewnątrz).</p>
-    <ul class="hint" id="vinHint" style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px"></ul>
-    <div class="row2"><label class="pick"><input type="file" id="fVinCam" accept="image/*" capture="environment">📷 Zrób zdjęcie</label><label class="pick"><input type="file" id="fVin" accept="image/*" multiple>🖼️ Z galerii</label></div>
-    <div class="thumbs" id="tVin"></div>
-  </section>
-
-  <section class="step" id="s3">
-    <h2><span class="num">4</span><span id="docTitle">Upoważnienie do podpisu</span></h2>
+  <!-- 6. podpis -->
+  <section class="scr" id="kPodpis">
+    <h2 id="docTitle">Upoważnienie do podpisu</h2>
     <p class="hint" id="docHint">Proszę sprawdzić dane i podpisać się palcem w ramce pod dokumentem.</p>
     <div id="vatBox" class="vat" hidden>
       <p class="hint" style="margin:0">Proszę zaznaczyć (potrzebne do upoważnienia):</p>
@@ -125,6 +156,7 @@ footer{font-size:12px;color:var(--muted);text-align:center}
       <div class="opts" id="odlRow" hidden><span>Odliczenie VAT</span><label><input type="radio" name="odl" value="100%" checked> 100%</label><label><input type="radio" name="odl" value="50%"> 50%</label></div>
     </div>
     <div id="docs" class="docs"></div>
+    <p class="big"><b>Podpis palcem tutaj ↓</b></p>
     <div class="pad" id="pad"><canvas id="sig" aria-label="Pole na podpis"></canvas><div class="ph" id="ph">Podpis palcem tutaj</div></div>
     <div class="row"><button type="button" id="clear">Wyczyść podpis</button></div>
     <label class="check"><input type="checkbox" id="wspOn"><span><b>Auto ma współwłaściciela</b> (druga osoba wpisana w dowodzie) – on też musi podpisać</span></label>
@@ -142,24 +174,75 @@ footer{font-size:12px;color:var(--muted);text-align:center}
       <label class="pick"><input type="file" id="fPapier" accept="image/*,application/pdf">📷 Dodaj zdjęcie podpisanego upoważnienia</label>
       <div class="thumbs" id="tPapier"></div>
     </details>
+    <div class="nav"><button type="button" class="wstecz">← Wstecz</button><button type="button" class="dalej" id="dalejPodpis" disabled>Dalej →</button></div>
   </section>
 
-  <section class="step">
+  <!-- 7. wysyłka -->
+  <section class="scr" id="kWyslij">
+    <h2>Ostatni krok – wysyłka</h2>
+    <p class="big" id="podsum"></p>
     <label class="f" for="tel">Telefon kontaktowy<input type="tel" id="tel" autocomplete="tel"></label>
     <label class="check"><input type="checkbox" id="rodo"><span>Wyrażam zgodę na przetwarzanie moich danych przez AUTO-KOMPLEX Witold Jurasz, ul. Kolejowa 7, 34-350 Węgierska Górka, w celu naprawy pojazdu i likwidacji szkody u ubezpieczyciela.</span></label>
     <button class="primary" id="dysk" type="button" hidden>Wyślij do warsztatu</button>
     <button class="primary" id="wa" type="button">Wyślij przez WhatsApp</button>
     <p class="hint" id="waHint" style="margin:0">Otworzy się WhatsApp ze wszystkimi zdjęciami i podpisanymi dokumentami – wystarczy wybrać czat z warsztatem i wysłać.</p>
     <div id="out" hidden></div>
+    <div class="nav" style="grid-template-columns:1fr"><button type="button" class="wstecz">← Wstecz</button></div>
   </section>
 
   <footer>AUTO-KOMPLEX Witold Jurasz · NIP 553-212-63-07 · ul. Kolejowa 7, 34-350 Węgierska Górka</footer>
 </div>
 
+<!-- aparat w stronie -->
+<div id="cam" hidden>
+  <video id="vid" playsinline muted autoplay></video>
+  <div class="gora"><div class="txt" id="camTxt"></div><div id="camRys"></div></div>
+  <div class="licznik" id="camLicz"></div>
+  <div class="blysk" id="blysk"></div>
+  <div class="dol">
+    <div class="mini" id="camMini"></div>
+    <button type="button" class="spust" id="spust" aria-label="Zrób zdjęcie"></button>
+    <div class="prawa"><button type="button" class="latarka" id="latarka" hidden>🔦 Latarka</button><button type="button" class="gotowe" id="gotowe">Gotowe</button></div>
+  </div>
+</div>
+<input type="file" id="fZapas" accept="image/*" capture="environment" hidden>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-/* ---- dane szkody (wersja próbna, fikcyjne) ---- */
+/* ---- kroki ze zdjęciami ---- */
+const KROKI = [
+  { id:"dowod", tytul:"Dowód rejestracyjny", opis:"Połóż dowód na stole i zrób zdjęcie obu stron. Wszystkie dane muszą być czytelne – bez odblasku lampy.",
+    folder:"dokumenty", pref:"1_dowod", ujecia:[["Przód dowodu (strona z numerem rejestracyjnym)","przod"],["Tył dowodu (druga strona)","tyl"]], min:2, max:6 },
+  { id:"rogi", tytul:"Całe auto – 4 rogi", opis:"Stań 2–3 metry od auta, na ukos, tak żeby w kadrze był cały przód (albo tył) i cały bok. Telefon poprowadzi po kolei – rysunek pokazuje, gdzie stanąć.",
+    folder:"zdjecia", pref:"2", ujecia:[["Lewy przód (strona kierowcy)","przod_lewy",0],["Prawy przód","przod_prawy",1],["Prawy tył","tyl_prawy",2],["Lewy tył (strona kierowcy)","tyl_lewy",3]], min:4, max:10, rys:true },
+  { id:"usz", tytul:"Uszkodzenia", opis:"Każde uszkodzenie: jedno zdjęcie z około 1,5 m (żeby było widać, która to część auta) i 2–3 z bliska. Można robić ile trzeba, jedno po drugim.",
+    folder:"zdjecia", pref:"3_uszkodzenie", min:3, max:30 },
+  { id:"vin", tytul:"Numer VIN i tabliczka", opis:"Zdjęcie numeru VIN i tabliczki znamionowej (naklejki z danymi auta). Numer musi być ostry i czytelny – w razie potrzeby włącz latarkę w aparacie.",
+    folder:"dokumenty", pref:"4_VIN", min:1, max:8, vin:true },
+  { id:"licznik", tytul:"Licznik", opis:"Włącz zapłon i zrób zdjęcie licznika tak, żeby było widać przebieg (kilometry).",
+    folder:"zdjecia", pref:"5_licznik", min:1, max:4 }
+];
+function rysAuto(r){ /* auto z góry, przód u góry; r = 0 lewy przód, 1 prawy przód, 2 prawy tył, 3 lewy tył */
+  const P=[[16,18,44,40],[104,18,76,40],[104,142,76,120],[16,142,44,120]];
+  let s=`<svg viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Gdzie stanąć"><text x="60" y="11" text-anchor="middle" font-size="10" font-weight="700" fill="currentColor">PRZÓD</text>
+  <rect x="40" y="24" width="40" height="112" rx="13" fill="none" stroke="currentColor" stroke-width="3"/><path d="M45 48 Q60 40 75 48" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M46 116 Q60 122 74 116" fill="none" stroke="currentColor" stroke-width="2"/>`;
+  if(r>=0){ const [x,y,tx,ty]=P[r]; s+=`<line x1="${x}" y1="${y}" x2="${tx}" y2="${ty}" stroke="#e0a100" stroke-width="3" stroke-dasharray="4 3"/><circle cx="${x}" cy="${y}" r="9" fill="#e0a100"/><text x="${x}" y="${y+4}" text-anchor="middle" font-size="11">📷</text>`; }
+  return s+`</svg>`; }
+document.getElementById("fotoKroki").innerHTML = KROKI.map(k=>`
+  <section class="scr" id="k_${k.id}" data-k="${k.id}">
+    <h2>${k.tytul}</h2>
+    <p class="big">${k.opis}</p>
+    ${k.vin?`<ul class="hint" id="vinHint" style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px"></ul>`:""}
+    ${k.rys?`<div class="auto" id="rys_${k.id}" style="color:var(--ink)"></div>`:""}
+    <div class="licz" id="licz_${k.id}"></div>
+    <button type="button" class="cambtn" data-cam="${k.id}">📷 <span id="camLbl_${k.id}">Zrób zdjęcia</span></button>
+    <label class="galeria"><input type="file" accept="image/*" multiple data-gal="${k.id}">albo dodaj zdjęcia z galerii telefonu</label>
+    <div class="thumbs" id="th_${k.id}"></div>
+    <div class="nav"><button type="button" class="wstecz">← Wstecz</button><button type="button" class="dalej" data-dalej="${k.id}" disabled>Dalej →</button></div>
+  </section>`).join("");
+
+/* ---- dane szkody ---- */
 /* druk: "auto" = sam dobiera po ubezpieczycielu (Hestia/UNIQA -> druk EIS + oświadczenie, reszta -> upoważnienie warsztatu)
    klient_typ: "osoba" albo "firma" (dla firmy uzupełnij FIRMA_KLIENTA) */
 /* Dane szkody są w linku po znaku # (base64url z JSON) – nie są zapisane na serwerze */
@@ -261,8 +344,11 @@ const DOKUMENTY = { wlasne:[["upowaznienie",docWlasne]], eis_osoba:[["upowaznien
 function renderPaper(){
   $("docs").innerHTML = DOKUMENTY.map(([k,f])=>`<div class="paper" data-doc="${k}">${f()}</div>`).join(""); }
 
-/* ---- zdjęcia: zmniejszanie w telefonie ---- */
-const files = { dowod:[], foto:[], vin:[], papier:[] };
+/* ---- zdjęcia: zmniejszanie, zapis, wysyłka od razu ---- */
+const KLUCZ = DANE.k || "";
+const NR = SZKODA.nr_rej.replace(/\s/g,"");
+const files = { papier:[] }; KROKI.forEach(k=>files[k.id]=[]);
+const KR = Object.fromEntries(KROKI.map(k=>[k.id,k]));
 async function shrink(file){
   if(!file.type.startsWith("image/")) return file;
   const bmp = await createImageBitmap(file).catch(()=>null); if(!bmp) return file;
@@ -271,15 +357,130 @@ async function shrink(file){
   c.getContext("2d").drawImage(bmp,0,0,c.width,c.height);
   return await new Promise(r=>c.toBlob(b=>r(b||file),"image/jpeg",0.85));
 }
-function hook(inputId, key, thumbsId, stepId){
-  $(inputId).addEventListener("change", async e=>{
-    for(const f of e.target.files){ const b = await shrink(f); files[key].push({blob:b,name:f.name});
-      if(b.type.startsWith("image/")){ const i=document.createElement("img"); i.src=URL.createObjectURL(b); i.alt=f.name; $(thumbsId).append(i);} }
-    if(stepId && files[key].length) $(stepId).classList.add("done");
-    e.target.value="";
-  });
+/* pamięć postępu w telefonie – gdyby strona się przeładowała */
+const PAM = "ak_"+String(SZKODA.nr_szkody||SZKODA.id).replace(/\W/g,"");
+let pam = {}; try{ pam = JSON.parse(localStorage.getItem(PAM)||"{}"); }catch(e){}
+function zapiszPam(){ try{ pam.n={}; KROKI.forEach(k=>pam.n[k.id]=files[k.id].filter(f=>f.stan==="ok").length); pam.krok=krok; pam.t=Date.now(); localStorage.setItem(PAM,JSON.stringify(pam)); }catch(e){} }
+
+function nazwaDla(k, i){ /* i = numer zdjęcia w kroku, od 0 */
+  if(k.ujecia && i<k.ujecia.length) return `${k.pref}_${k.ujecia[i][1]}_${NR}.jpg`;
+  if(k.ujecia) return `${k.pref}_dodatkowe_${i-k.ujecia.length+1}_${NR}.jpg`;
+  return `${k.pref}_${String(i+1).padStart(2,"0")}_${NR}.jpg`; }
+
+function dodajZdjecie(k, blob){
+  const lista = files[k.id];
+  if(lista.length >= k.max){ return false; }
+  const f = { blob, nazwa:nazwaDla(k, lista.length), folder:k.folder, stan: KLUCZ?"czeka":"lokalne" };
+  const t = document.createElement("div"); t.className="t";
+  const im = document.createElement("img"); im.src = URL.createObjectURL(blob); im.alt = f.nazwa;
+  f.znak = document.createElement("b"); t.append(im, f.znak); f.el=t;
+  $("th_"+k.id).append(t); lista.push(f); oznacz(f);
+  if(KLUCZ){ kolejka.push(f); pompa(); }
+  odswiezKrok(k.id); return true;
 }
-hook("fDowod","dowod","tDowod","s1"); hook("fDowodCam","dowod","tDowod","s1"); hook("fFotoCam","foto","tFoto","s2"); hook("fVinCam","vin","tVin","s2b"); hook("fFoto","foto","tFoto","s2"); hook("fVin","vin","tVin","s2b"); hook("fPapier","papier","tPapier","s3");
+function oznacz(f){ if(!f.znak) return; const m={czeka:["⏳",""],wysyla:["↑",""],ok:["✓","ok"],blad:["!","err"],lokalne:["",""]}[f.stan];
+  f.znak.textContent=m[0]; f.znak.className=m[1]; f.znak.hidden=!m[0]; }
+
+const kolejka=[]; let pracuje=false, ostatniBlad="";
+async function pompa(){
+  if(pracuje) return; pracuje=true;
+  while(kolejka.length){ const f=kolejka[0]; f.stan="wysyla"; oznacz(f);
+    try{ await wyslijJeden({folder:f.folder, plik:{nazwa:f.nazwa, typ:"image/jpeg", b64:await b64(f.blob)}}); f.stan="ok"; }
+    catch(e){ f.stan="blad"; ostatniBlad=String(e&&e.message||e); }
+    kolejka.shift(); oznacz(f); zapiszPam(); }
+  pracuje=false; }
+const czekajNaKolejke = ()=> new Promise(r=>{ const t=setInterval(()=>{ if(!pracuje && !kolejka.length){ clearInterval(t); r(); } },300); });
+addEventListener("beforeunload", e=>{ if(kolejka.length){ e.preventDefault(); e.returnValue=""; } });
+
+const b64 = blob => new Promise((ok,err)=>{ const r=new FileReader(); r.onload=()=>ok(String(r.result).split(",")[1]); r.onerror=err; r.readAsDataURL(blob); });
+async function wyslijJeden(body){ let last;
+  for(let t=0;t<3;t++){ try{ const r=await fetch(FIRMA.skrypt,{method:"POST",body:JSON.stringify(Object.assign({k:KLUCZ,s:SZKODA},body))}); const j=await r.json(); if(j.ok) return j; last=new Error(j.err||"blad"); if(/klucz|wygasl|limit|teczki/.test(j.err||"")) break; }catch(e){ last=e; } await new Promise(r=>setTimeout(r,1500)); }
+  throw last; }
+
+function odswiezKrok(id){
+  const k=KR[id], n=files[id].length, l=$("licz_"+id);
+  if(k.ujecia){ l.textContent = n>=k.min ? `✓ Zrobione: ${Math.min(n,k.ujecia.length)} z ${k.ujecia.length}${n>k.ujecia.length?` (+${n-k.ujecia.length} dodatkowe)`:""}` : `Zrobione: ${n} z ${k.ujecia.length}`; }
+  else { l.textContent = n>=k.min ? `✓ Zdjęć: ${n}` : `Zdjęć: ${n} (potrzeba co najmniej ${k.min})`; }
+  l.classList.toggle("ok", n>=k.min);
+  $("camLbl_"+id).textContent = n ? "Zrób więcej zdjęć" : "Zrób zdjęcia";
+  if(k.rys) $("rys_"+id).innerHTML = rysAuto(n<k.ujecia.length ? k.ujecia[n][2] : -1);
+  document.querySelector(`[data-dalej="${id}"]`).disabled = n < k.min;
+}
+
+/* ---- aparat w stronie ---- */
+let strumien=null, aktK=null, latarkaOn=false;
+function camOpis(){ const k=aktK, n=files[k.id].length;
+  let txt = k.tytul, sub = "";
+  if(k.ujecia && n<k.ujecia.length){ txt = k.ujecia[n][0]; sub = `${k.tytul} – zdjęcie ${n+1} z ${k.ujecia.length}`; }
+  else if(k.ujecia){ txt = "Wszystkie zrobione ✓"; sub = "Naciśnij „Gotowe” (albo zrób dodatkowe zdjęcie)"; }
+  else { sub = n>=k.min ? "Można robić dalej albo nacisnąć „Gotowe”" : `Potrzeba co najmniej ${k.min} – zrobione ${n}`; }
+  $("camTxt").innerHTML = `${esc(txt)}<small>${esc(sub)}</small>`;
+  $("camRys").innerHTML = k.rys && n<k.ujecia.length ? rysAuto(k.ujecia[n][2]) : "";
+  $("camRys").style.color="#fff";
+  $("camLicz").textContent = n ? `${n} ${n===1?"zdjęcie":n<5?"zdjęcia":"zdjęć"}` : "";
+  $("camLicz").hidden = !n;
+  $("gotowe").textContent = n>=k.min ? "Gotowe ✓" : "Zamknij";
+}
+async function otworzAparat(id){
+  aktK = KR[id];
+  if(!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) return zapasowy(id);
+  try{
+    strumien = await navigator.mediaDevices.getUserMedia({audio:false, video:{facingMode:{ideal:"environment"}, width:{ideal:1920}, height:{ideal:1080}}});
+  }catch(e){ return zapasowy(id, e && e.name==="NotAllowedError"); }
+  const v=$("vid"); v.srcObject=strumien; $("cam").hidden=false; document.body.style.overflow="hidden";
+  try{ await v.play(); }catch(e){}
+  $("camMini").innerHTML=""; files[id].filter(f=>f.blob).slice(-3).forEach(f=>{ const i=document.createElement("img"); i.src=f.el.querySelector("img").src; $("camMini").append(i); });
+  latarkaOn=false; const tr=strumien.getVideoTracks()[0]; let cap={}; try{ cap=tr.getCapabilities?tr.getCapabilities():{}; }catch(e){}
+  $("latarka").hidden = !cap.torch; $("latarka").textContent="🔦 Latarka";
+  camOpis();
+}
+function zamknijAparat(){ if(strumien){ strumien.getTracks().forEach(t=>t.stop()); strumien=null; } $("cam").hidden=true; document.body.style.overflow=""; if(aktK) odswiezKrok(aktK.id); }
+$("gotowe").onclick = zamknijAparat;
+$("latarka").onclick = async ()=>{ try{ latarkaOn=!latarkaOn; await strumien.getVideoTracks()[0].applyConstraints({advanced:[{torch:latarkaOn}]}); $("latarka").textContent = latarkaOn?"🔦 Wyłącz":"🔦 Latarka"; }catch(e){} };
+$("spust").onclick = ()=>{
+  const v=$("vid"), w=v.videoWidth, h=v.videoHeight; if(!w||!h||!aktK) return;
+  if(files[aktK.id].length >= aktK.max){ $("camTxt").innerHTML = `Wystarczy zdjęć w tym kroku<small>Naciśnij „Gotowe”</small>`; return; }
+  const s=Math.min(1,1920/Math.max(w,h)), c=document.createElement("canvas"); c.width=Math.round(w*s); c.height=Math.round(h*s);
+  c.getContext("2d").drawImage(v,0,0,c.width,c.height);
+  const bl=$("blysk"); bl.classList.add("on"); setTimeout(()=>bl.classList.remove("on"),60); try{ navigator.vibrate && navigator.vibrate(30); }catch(e){}
+  c.toBlob(b=>{ if(!b) return; const k=aktK; dodajZdjecie(k,b);
+    const i=document.createElement("img"); i.src=URL.createObjectURL(b); const m=$("camMini"); m.append(i); while(m.children.length>3) m.firstChild.remove();
+    camOpis();
+    if(k.ujecia && files[k.id].length===k.ujecia.length) setTimeout(()=>{ if(aktK===k && !$("cam").hidden) zamknijAparat(); },700);
+  },"image/jpeg",0.85);
+};
+/* gdy aparat w stronie nie działa – zwykły aparat telefonu, po jednym zdjęciu */
+function zapasowy(id, odmowa){
+  if(odmowa) alertMsg(id, "Strona nie dostała dostępu do aparatu. Zdjęcia będą robione zwykłym aparatem – po jednym. Każde od razu trafia do warsztatu.");
+  const inp=$("fZapas"); inp.dataset.k=id; inp.value=""; inp.click(); }
+function alertMsg(id, t){ let p=$("msg_"+id); if(!p){ p=document.createElement("p"); p.id="msg_"+id; p.className="msg err"; $("licz_"+id).after(p); } p.textContent=t; }
+async function zGaleriiLubZapasu(id, lista){ const k=KR[id]; for(const f of lista){ const b=await shrink(f); if(!dodajZdjecie(k,b)) { alertMsg(id,`W tym kroku można dodać najwyżej ${k.max} zdjęć.`); break; } } odswiezKrok(id); }
+$("fZapas").addEventListener("change", e=>{ const id=e.target.dataset.k; zGaleriiLubZapasu(id,[...e.target.files]); e.target.value=""; });
+document.querySelectorAll("[data-cam]").forEach(b=>b.onclick=()=>otworzAparat(b.dataset.cam));
+document.querySelectorAll("[data-gal]").forEach(i=>i.addEventListener("change", e=>{ zGaleriiLubZapasu(i.dataset.gal,[...e.target.files]); e.target.value=""; }));
+
+/* ---- przechodzenie między krokami ---- */
+const EKRANY = ["k0", ...KROKI.map(k=>"k_"+k.id), "kPodpis", "kWyslij"];
+let krok = 0;
+function pokaz(n){
+  krok = Math.max(0, Math.min(EKRANY.length-1, n));
+  EKRANY.forEach((id,i)=>$(id).classList.toggle("on", i===krok));
+  $("progBar").style.width = (krok/(EKRANY.length-1)*100)+"%";
+  $("krokTxt").textContent = krok ? `Krok ${krok} z ${EKRANY.length-1}` : "";
+  const id=EKRANY[krok];
+  if(id==="kPodpis"){ requestAnimationFrame(()=>{ pad1.size(); if(!$("wspBox").hidden) pad2.size(); }); }
+  if(id==="kWyslij") podsumowanie();
+  if(id.startsWith("k_")) odswiezKrok(id.slice(2));
+  scrollTo(0,0); zapiszPam();
+}
+$("start").onclick = ()=>pokaz(pam.krok && pam.krok>0 && pam.krok<EKRANY.length-1 ? pam.krok : 1);
+document.querySelectorAll(".wstecz").forEach(b=>b.onclick=()=>pokaz(krok-1));
+document.querySelectorAll("[data-dalej]").forEach(b=>b.onclick=()=>pokaz(krok+1));
+$("dalejPodpis").onclick = ()=>pokaz(krok+1);
+function podpisOk(){ return (pad1.has && (!$("wspOn").checked || ($("wspImie").value.trim() && pad2.has))) || files.papier.length>0; }
+function aktualizujPodpis(){ $("dalejPodpis").disabled = !podpisOk(); }
+function podsumowanie(){ const n=KROKI.reduce((a,k)=>a+files[k.id].length,0);
+  $("podsum").textContent = KLUCZ ? `Zdjęcia (${n}) są już wysyłane do warsztatu. Sprawdź telefon i naciśnij „Wyślij do warsztatu” – dojdą podpisane dokumenty.` : `Zrobione zdjęcia: ${n}. Sprawdź telefon i wyślij.`; }
 
 /* ---- podpis palcem (właściciel + ewentualny współwłaściciel) ---- */
 function makePad(cvId, phId, onChange){
@@ -297,7 +498,7 @@ function makePad(cvId, phId, onChange){
   st.url=()=> st.has ? cv.toDataURL("image/png") : null;
   return st;
 }
-const refresh=()=>{ renderPaper(); const ok = (pad1.has && (!WSP() || pad2.has)) || files.papier.length; $("s3").classList.toggle("done", !!ok); };
+const refresh=()=>{ renderPaper(); const ok = (pad1.has && (!WSP() || pad2.has)) || files.papier.length; aktualizujPodpis(); };
 const pad1 = makePad("sig","ph",refresh), pad2 = makePad("sig2","ph2",refresh);
 $("clear").onclick=()=>pad1.clear(); $("clear2").onclick=()=>pad2.clear();
 $("wspOn").addEventListener("change",()=>{ $("wspBox").hidden=!$("wspOn").checked; pad2.size(); refresh(); });
@@ -348,26 +549,43 @@ $("dl").onclick = async ()=>{
   }catch(e){ m.textContent="Nie udało się zapisać pliku. Można zrobić zrzut ekranu dokumentu powyżej."; }
 };
 
+/* ---- podpisane upoważnienie z papieru ---- */
+$("fPapier").addEventListener("change", async e=>{
+  for(const f of e.target.files){ const b=await shrink(f); files.papier.push({blob:b,name:f.name});
+    if(b.type.startsWith("image/")){ const i=document.createElement("img"); i.src=URL.createObjectURL(b); i.alt=f.name; $("tPapier").append(i);} }
+  e.target.value=""; aktualizujPodpis(); });
+["wspImie","wspAdres"].forEach(id=>$(id).addEventListener("input",aktualizujPodpis));
+$("wspOn").addEventListener("change",aktualizujPodpis);
+
+/* ---- powrót po przeładowaniu strony: to, co już wysłane, zostaje zaliczone ---- */
+if(KLUCZ && pam.n){ let suma=0;
+  KROKI.forEach(k=>{ for(let i=0;i<(pam.n[k.id]||0);i++){ const t=document.createElement("div"); t.className="t"; t.innerHTML=`<div class="ph0">wysłane</div><b class="ok">✓</b>`;
+    $("th_"+k.id).append(t); files[k.id].push({stan:"ok", nazwa:nazwaDla(k,i), wczesniej:true, el:t}); suma++; } });
+  if(suma){ $("wznow").hidden=false; $("wznow").className="msg ok wznow"; $("wznow").textContent=`Wcześniej wysłane zdjęcia (${suma}) są już w warsztacie. Naciśnij „Zaczynamy”, żeby dokończyć.`; $("start").textContent="Dokończ →"; }
+}
+if(pam.wyslane){ $("wznow").hidden=false; $("wznow").className="msg ok wznow"; $("wznow").textContent="Dokumenty z tego telefonu zostały już wysłane do warsztatu. Jeśli trzeba coś dosłać – można przejść kroki jeszcze raz."; }
+
 /* ---- braki przed wysyłką ---- */
-function braki(){ const brak=[]; if(!files.dowod.length) brak.push("zdjęcie dowodu"); if(!files.foto.length) brak.push("zdjęcia auta"); if(!files.vin.length) brak.push("zdjęcie tabliczki znamionowej lub VIN");
+function braki(){ const brak=[];
+  KROKI.forEach(k=>{ if(files[k.id].length<k.min) brak.push(k.tytul.toLowerCase()); });
   if(!pad1.has && !files.papier.length) brak.push("podpis na upoważnieniu");
   if($("wspOn").checked && !$("wspImie").value.trim()) brak.push("imię i nazwisko współwłaściciela");
   if(WSP() && !pad2.has && !files.papier.length) brak.push("podpis współwłaściciela");
   if(!$("rodo").checked) brak.push("zaznaczona zgoda"); return brak; }
+const tekstDla = (wiersz)=> `Dokumenty do szkody ${SZKODA.nr_szkody} – ${SZKODA.marka} ${SZKODA.model} ${SZKODA.nr_rej} – ${SZKODA.klient}`+(WSP()?` (współwł. ${WSP().imie}${WSP().adres?", "+WSP().adres:""})`:"")+(RODZAJ==="eis_osoba"?`${wiersz}VAT: ${vatVal()}${vatVal()==="tak"?" "+odlVal():""}`:"")+`${wiersz}Tel.: ${$("tel").value.trim()}`;
 
 /* ---- wysyłka przez WhatsApp (udostępnianie plików z telefonu) ---- */
 $("wa").onclick = async ()=>{
   const out=$("out"); out.hidden=false; out.className="msg";
   const brak=braki(); if(brak.length){ out.className="msg err"; out.textContent="Brakuje: "+brak.join(", ")+"."; return; }
   const btn=$("wa"); btn.disabled=true; out.textContent="Przygotowuję pliki…";
-  const nr=SZKODA.nr_rej.replace(/\s/g,"");
   const lista=[];
-  const add=(arr,pref)=>arr.forEach((f,i)=>{ const typ=f.blob.type||"image/jpeg"; const ext=typ.includes("pdf")?"pdf":"jpg"; lista.push(new File([f.blob],`${pref}_${i+1}_${nr}.${ext}`,{type:typ})); });
-  add(files.dowod,"dowod"); add(files.foto,"auto"); add(files.vin,"VIN"); add(files.papier,"upowaznienie_papier");
+  KROKI.forEach(k=>files[k.id].forEach(f=>{ if(f.blob) lista.push(new File([f.blob],f.nazwa,{type:"image/jpeg"})); }));
+  files.papier.forEach((f,i)=>{ const typ=f.blob.type||"image/jpeg"; lista.push(new File([f.blob],`upowaznienie_papier_${i+1}_${NR}.${typ.includes("pdf")?"pdf":"jpg"}`,{type:typ})); });
   let docs=[];
   if(pad1.has){ docs = await paperImages().catch(()=>[]);
-    for(const {name,canvas} of docs){ const b=await new Promise(r=>canvas.toBlob(r,"image/jpeg",0.9)); if(b) lista.push(new File([b],`${name}_podpisane_${nr}.jpg`,{type:"image/jpeg"})); } }
-  const tekst = `Dokumenty do szkody ${SZKODA.nr_szkody} – ${SZKODA.marka} ${SZKODA.model} ${SZKODA.nr_rej} – ${SZKODA.klient}`+(WSP()?` (współwł. ${WSP().imie})`:"")+(RODZAJ==="eis_osoba"?`. VAT: ${vatVal()}${vatVal()==="tak"?" "+odlVal():""}`:"")+`. Tel.: ${$("tel").value.trim()}`;
+    for(const {name,canvas} of docs){ const b=await new Promise(r=>canvas.toBlob(r,"image/jpeg",0.9)); if(b) lista.push(new File([b],`${name}_podpisane_${NR}.jpg`,{type:"image/jpeg"})); } }
+  const tekst = tekstDla(". ");
   try{
     if(navigator.canShare && navigator.canShare({files:lista})){
       await navigator.share({files:lista, title:"Dokumenty do szkody", text:tekst});
@@ -382,44 +600,41 @@ $("wa").onclick = async ()=>{
   btn.disabled=false;
 };
 
-
 /* ---- wysyłka prosto do teczki szkody na Dysku Google ---- */
-const KLUCZ = DANE.k || "";
 if(KLUCZ){ $("dysk").hidden=false; $("wa").classList.remove("primary"); $("wa").style.cssText="width:100%;margin-top:4px"; $("wa").textContent="Albo wyślij przez WhatsApp"; $("waHint").textContent="Przycisk „Wyślij do warsztatu” zapisze wszystko od razu u nas. WhatsApp – tylko jeśli tamto nie zadziała."; }
-const b64 = blob => new Promise((ok,err)=>{ const r=new FileReader(); r.onload=()=>ok(String(r.result).split(",")[1]); r.onerror=err; r.readAsDataURL(blob); });
-async function wyslijJeden(body){ let last;
-  for(let t=0;t<3;t++){ try{ const r=await fetch(FIRMA.skrypt,{method:"POST",body:JSON.stringify(Object.assign({k:KLUCZ,s:SZKODA},body))}); const j=await r.json(); if(j.ok) return j; last=new Error(j.err||"blad"); }catch(e){ last=e; } await new Promise(r=>setTimeout(r,1500)); }
-  throw last; }
 $("dysk").onclick = async ()=>{
   const out=$("out"); out.hidden=false; out.className="msg";
   const brak=braki(); if(brak.length){ out.className="msg err"; out.textContent="Brakuje: "+brak.join(", ")+"."; return; }
-  const btn=$("dysk"); btn.disabled=true; out.textContent="Przygotowuję pliki…";
-  const nr=SZKODA.nr_rej.replace(/\s/g,"");
-  const lista=[];
-  const add=(arr,pref,folder)=>arr.forEach((f,i)=>{ const typ=f.blob.type||"image/jpeg"; const ext=typ.includes("pdf")?"pdf":"jpg"; lista.push({folder,nazwa:`${pref}_${i+1}_${nr}.${ext}`,typ,blob:f.blob}); });
-  add(files.dowod,"dowod","dokumenty"); add(files.foto,"auto","zdjecia"); add(files.vin,"VIN","dokumenty"); add(files.papier,"upowaznienie_papier","dokumenty");
-  if(pad1.has){ const docs = await paperImages().catch(()=>[]);
-    for(const {name,canvas} of docs){ const b=await new Promise(r=>canvas.toBlob(r,"image/jpeg",0.9)); if(b) lista.push({folder:"dokumenty",nazwa:`${name}_podpisane_${nr}.jpg`,typ:"image/jpeg",blob:b}); }
-    try{ const pb=pdfZ(docs); if(pb) lista.push({folder:"dokumenty",nazwa:`DOKUMENTY_PODPISANE_A4_${nr}.pdf`,typ:"application/pdf",blob:pb}); }catch(e){} }
-  const tekst = `Dokumenty do szkody ${SZKODA.nr_szkody} – ${SZKODA.marka} ${SZKODA.model} ${SZKODA.nr_rej} – ${SZKODA.klient}`+(WSP()?` (współwł. ${WSP().imie}${WSP().adres?", "+WSP().adres:""})`:"")+(RODZAJ==="eis_osoba"?`\nVAT: ${vatVal()}${vatVal()==="tak"?" "+odlVal():""}`:"")+`\nTel.: ${$("tel").value.trim()}\nWysłano: ${new Date().toLocaleString("pl-PL")}`;
+  const btn=$("dysk"); btn.disabled=true;
   try{
-    for(let i=0;i<lista.length;i++){ const f=lista[i]; out.textContent=`Wysyłam ${i+1} z ${lista.length}…`;
-      await wyslijJeden({folder:f.folder, plik:{nazwa:f.nazwa, typ:f.typ, b64:await b64(f.blob)}}); }
-    await wyslijJeden({folder:"dokumenty", tekst:{nazwa:`dane klienta ${nr}.txt`, tresc:tekst}});
+    /* 1. dokończ zdjęcia, ponów te, które się nie wysłały */
+    out.textContent="Kończę wysyłanie zdjęć…"; await czekajNaKolejke();
+    const bledne=[]; KROKI.forEach(k=>files[k.id].forEach(f=>{ if(f.stan==="blad") bledne.push(f); }));
+    if(bledne.length){ bledne.forEach(f=>{ f.stan="czeka"; oznacz(f); kolejka.push(f); }); pompa(); await czekajNaKolejke(); }
+    const dalej=[]; KROKI.forEach(k=>files[k.id].forEach(f=>{ if(f.stan==="blad") dalej.push(f); }));
+    if(dalej.length) throw new Error("zdjecia");
+    /* 2. podpisane dokumenty */
+    const lista=[];
+    files.papier.forEach((f,i)=>{ const typ=f.blob.type||"image/jpeg"; lista.push({nazwa:`upowaznienie_papier_${i+1}_${NR}.${typ.includes("pdf")?"pdf":"jpg"}`,typ,blob:f.blob}); });
+    if(pad1.has){ out.textContent="Przygotowuję podpisane dokumenty…"; const docs = await paperImages().catch(()=>[]);
+      for(const {name,canvas} of docs){ const b=await new Promise(r=>canvas.toBlob(r,"image/jpeg",0.9)); if(b) lista.push({nazwa:`${name}_podpisane_${NR}.jpg`,typ:"image/jpeg",blob:b}); }
+      try{ const pb=pdfZ(docs); if(pb) lista.push({nazwa:`DOKUMENTY_PODPISANE_A4_${NR}.pdf`,typ:"application/pdf",blob:pb}); }catch(e){} }
+    for(let i=0;i<lista.length;i++){ const f=lista[i]; out.textContent=`Wysyłam dokumenty ${i+1} z ${lista.length}…`;
+      await wyslijJeden({folder:"dokumenty", plik:{nazwa:f.nazwa, typ:f.typ, b64:await b64(f.blob)}}); }
+    /* 3. dane + powiadomienie dla warsztatu */
+    const ile = KROKI.map(k=>`${k.tytul}: ${files[k.id].length}`).join(", ");
+    await wyslijJeden({folder:"dokumenty", tekst:{nazwa:`dane klienta ${NR}.txt`, tresc: tekstDla("\n")+`\nZdjęcia – ${ile}\nWysłano: ${new Date().toLocaleString("pl-PL")}`}});
+    pam.wyslane=Date.now(); zapiszPam();
     out.className="msg ok"; out.innerHTML="<b>Dziękujemy!</b> Wszystkie zdjęcia i podpisane dokumenty dotarły do warsztatu AUTO-KOMPLEX. Można zamknąć stronę.";
+    $("progBar").style.width="100%"; ["dysk","wa","waHint"].forEach(id=>$(id).hidden=true); out.scrollIntoView({behavior:"smooth",block:"center"});
   }catch(e){
-    out.className="msg err"; out.innerHTML="<b>Nie udało się wysłać przez internet.</b> Proszę nacisnąć niżej „Albo wyślij przez WhatsApp”.";
+    out.className="msg err";
+    out.innerHTML = /wygasl/.test(ostatniBlad+(e&&e.message)) ? "<b>Ten link już wygasł.</b> Proszę zadzwonić do warsztatu: 512 211 888." : "<b>Nie udało się wysłać wszystkiego przez internet.</b> Proszę sprawdzić zasięg i nacisnąć „Wyślij do warsztatu” jeszcze raz. Jeśli dalej nie działa – „Albo wyślij przez WhatsApp”.";
     btn.disabled=false; return;
   }
 };
-/* ---- wysyłka do warsztatu ---- */
-async function fallback(out, btn){
-  btn.disabled=false; out.className="msg err";
-  out.innerHTML="<b>Ta strona nie mogła wysłać plików.</b> Proszę przytrzymać palcem obrazek poniżej, zapisać go i odesłać na WhatsApp razem ze zdjęciami.";
-  const imgs = await paperImages().catch(()=>[]);
-  for(const {canvas:c} of imgs){ const i=document.createElement("img"); i.src=c.toDataURL("image/jpeg",0.9); i.alt="Podpisany dokument"; i.style.cssText="width:100%;margin-top:10px;border-radius:6px"; out.append(i); }
-}
-</script>
 
+pokaz(0);
+</script>
 </body>
 </html>
