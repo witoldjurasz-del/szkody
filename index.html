@@ -151,7 +151,7 @@ footer{font-size:12px;color:var(--muted);text-align:center}
     <h2 id="docTitle">Upoważnienie do podpisu</h2>
     <p class="hint" id="docHint">Proszę sprawdzić dane i podpisać się palcem w ramce pod dokumentem.</p>
     <div id="vatBox" class="vat" hidden>
-      <div class="opts"><span>Samochód firmowy (na działalność)?</span><label><input type="radio" name="firm" value="nie" checked> nie</label><label><input type="radio" name="firm" value="tak"> tak</label></div>
+      <div class="opts"><span>Samochód firmowy – faktura VAT na firmę?</span><label><input type="radio" name="firm" value="nie" checked> nie</label><label><input type="radio" name="firm" value="tak"> tak</label></div>
       <div id="firmBox" hidden style="display:flex;flex-direction:column;gap:10px">
         <label class="f" for="firmNazwa">Nazwa firmy (do faktury)<input type="text" id="firmNazwa" autocomplete="organization"></label>
         <label class="f" for="firmNip">NIP<input type="text" id="firmNip" inputmode="numeric" autocomplete="off"></label>
@@ -297,7 +297,7 @@ const EIS = SZKODA.druk==="eis" || (SZKODA.druk==="auto" && /hestia|ergo|uniqa/.
 const RODZAJ = EIS ? (SZKODA.klient_typ==="firma" ? "eis_firma" : "eis_osoba") : "wlasne";
 if(RODZAJ!=="eis_firma") $("vatBox").hidden=false;
 if(EIS){ $("docTitle").textContent="Upoważnienie i oświadczenie"; $("docHint").textContent="Dwa dokumenty dla ubezpieczyciela. Proszę sprawdzić dane i podpisać się raz palcem w ramce – podpis trafi na oba."; }
-const WARUNEK = RODZ_SZK==="OC" ? "ubezpieczyciel sprawcy nie pokryje podatku VAT" : "warunki umowy AC nie stanowią inaczej";
+const WARUNEK = "warunki ubezpieczenia nie stanowią inaczej";
 const vatOdsw = ()=>{ $("firmBox").hidden = vatVal()!=="tak"; $("vatInfo").textContent = `Jeżeli ${WARUNEK}, wystawimy fakturę VAT – trzeba będzie dopłacić ${odlVal()} podatku VAT od faktury za naprawę.`; renderPaper(); if(typeof aktualizujPodpis==="function") aktualizujPodpis(); };
 document.querySelectorAll('input[name=firm],input[name=odl]').forEach(r=>r.addEventListener("change",vatOdsw));
 ["firmNazwa","firmNip"].forEach(id=>$(id).addEventListener("input",vatOdsw));
