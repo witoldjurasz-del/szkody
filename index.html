@@ -151,9 +151,13 @@ footer{font-size:12px;color:var(--muted);text-align:center}
     <h2 id="docTitle">Upoważnienie do podpisu</h2>
     <p class="hint" id="docHint">Proszę sprawdzić dane i podpisać się palcem w ramce pod dokumentem.</p>
     <div id="vatBox" class="vat" hidden>
-      <p class="hint" style="margin:0">Proszę zaznaczyć (potrzebne do upoważnienia):</p>
-      <div class="opts"><span>Płatnik VAT?</span><label><input type="radio" name="vat" value="nie" checked> nie</label><label><input type="radio" name="vat" value="tak"> tak</label></div>
-      <div class="opts" id="odlRow" hidden><span>Odliczenie VAT</span><label><input type="radio" name="odl" value="100%" checked> 100%</label><label><input type="radio" name="odl" value="50%"> 50%</label></div>
+      <div class="opts"><span>Samochód firmowy (na działalność)?</span><label><input type="radio" name="firm" value="nie" checked> nie</label><label><input type="radio" name="firm" value="tak"> tak</label></div>
+      <div id="firmBox" hidden style="display:flex;flex-direction:column;gap:10px">
+        <label class="f" for="firmNazwa">Nazwa firmy (do faktury)<input type="text" id="firmNazwa" autocomplete="organization"></label>
+        <label class="f" for="firmNip">NIP<input type="text" id="firmNip" inputmode="numeric" autocomplete="off"></label>
+        <div class="opts" id="odlRow"><span>Odliczam VAT</span><label><input type="radio" name="odl" value="100%" checked> 100%</label><label><input type="radio" name="odl" value="50%"> 50%</label></div>
+        <p class="msg" id="vatInfo" style="margin:0"></p>
+      </div>
     </div>
     <div id="docs" class="docs"></div>
     <p class="big"><b>Podpis palcem tutaj ↓</b></p>
@@ -223,6 +227,12 @@ const KROKI = [
   { id:"licznik", tytul:"Licznik", opis:"Włącz zapłon i zrób zdjęcie licznika tak, żeby było widać przebieg (kilometry).",
     folder:"zdjecia", pref:"5_licznik", min:1, max:4 }
 ];
+/* rodzaj szkody z linku: OC albo AC – dodatkowy krok, nieobowiązkowy */
+const RODZ_SZK = (()=>{ try{ const d=wczytajDane()||{}; return String((d.s||d).rodzaj||"").toUpperCase(); }catch(e){ return ""; } })();
+if(RODZ_SZK==="OC") KROKI.push({ id:"sprawca", tytul:"Sprawca szkody", opis:"Jeśli masz – wpisz numer polisy i numer rejestracyjny sprawcy oraz zrób zdjęcie oświadczenia sprawcy (albo notatki policji). Jeśli nie masz – naciśnij „Pomiń”.",
+  folder:"dokumenty", pref:"6_oswiadczenie_sprawcy", min:0, max:6, pola:[["sprPolisa","Nr polisy OC sprawcy"],["sprRej","Nr rejestracyjny auta sprawcy"]] });
+if(RODZ_SZK==="AC") KROKI.push({ id:"polisa", tytul:"Polisa AC", opis:"Jeśli masz pod ręką – zrób zdjęcie polisy AC (wszystkie strony). Jeśli nie masz – naciśnij „Pomiń”.",
+  folder:"dokumenty", pref:"6_polisa_AC", min:0, max:8 });
 function rysAuto(r){ /* auto z góry, przód u góry; r = 0 lewy przód, 1 prawy przód, 2 prawy tył, 3 lewy tył */
   const P=[[16,18,44,40],[104,18,76,40],[104,142,76,120],[16,142,44,120]];
   let s=`<svg viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Gdzie stanąć"><text x="60" y="11" text-anchor="middle" font-size="10" font-weight="700" fill="currentColor">PRZÓD</text>
@@ -235,6 +245,7 @@ document.getElementById("fotoKroki").innerHTML = KROKI.map(k=>`
     <p class="big">${k.opis}</p>
     ${k.vin?`<ul class="hint" id="vinHint" style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px"></ul>`:""}
     ${k.rys?`<div class="auto" id="rys_${k.id}" style="color:var(--ink)"></div>`:""}
+    ${(k.pola||[]).map(([id,l])=>`<label class="f" for="${id}">${l}<input type="text" id="${id}" autocomplete="off" style="text-transform:uppercase"></label>`).join("")}
     <div class="licz" id="licz_${k.id}"></div>
     <button type="button" class="cambtn" data-cam="${k.id}">📷 <span id="camLbl_${k.id}">Zrób zdjęcia</span></button>
     <label class="galeria"><input type="file" accept="image/*" multiple data-gal="${k.id}">albo dodaj zdjęcia z galerii telefonu</label>
@@ -284,10 +295,16 @@ $("vinHint").innerHTML = [...VIN_GDZIE[GRUPA[SZKODA.marka.trim().toLowerCase()]|
 const UB = SZKODA.ubezpieczyciel.toLowerCase();
 const EIS = SZKODA.druk==="eis" || (SZKODA.druk==="auto" && /hestia|ergo|uniqa/.test(UB));
 const RODZAJ = EIS ? (SZKODA.klient_typ==="firma" ? "eis_firma" : "eis_osoba") : "wlasne";
-if(RODZAJ==="eis_osoba") $("vatBox").hidden=false;
+if(RODZAJ!=="eis_firma") $("vatBox").hidden=false;
 if(EIS){ $("docTitle").textContent="Upoważnienie i oświadczenie"; $("docHint").textContent="Dwa dokumenty dla ubezpieczyciela. Proszę sprawdzić dane i podpisać się raz palcem w ramce – podpis trafi na oba."; }
-document.querySelectorAll('input[name=vat],input[name=odl]').forEach(r=>r.addEventListener("change",()=>{ $("odlRow").hidden = vatVal()!=="tak"; renderPaper(); }));
-const vatVal = ()=> (document.querySelector('input[name=vat]:checked')||{}).value||"nie";
+const WARUNEK = RODZ_SZK==="OC" ? "ubezpieczyciel sprawcy nie pokryje podatku VAT" : "warunki umowy AC nie stanowią inaczej";
+const vatOdsw = ()=>{ $("firmBox").hidden = vatVal()!=="tak"; $("vatInfo").textContent = `Jeżeli ${WARUNEK}, wystawimy fakturę VAT – trzeba będzie dopłacić ${odlVal()} podatku VAT od faktury za naprawę.`; renderPaper(); if(typeof aktualizujPodpis==="function") aktualizujPodpis(); };
+document.querySelectorAll('input[name=firm],input[name=odl]').forEach(r=>r.addEventListener("change",vatOdsw));
+["firmNazwa","firmNip"].forEach(id=>$(id).addEventListener("input",vatOdsw));
+const vatVal = ()=> RODZAJ==="eis_firma" ? "nie" : ((document.querySelector('input[name=firm]:checked')||{}).value||"nie");
+const NIPK = ()=> $("firmNip").value.trim(), NAZWAK = ()=> $("firmNazwa").value.trim();
+const DOPLATA = ()=> vatVal()==="tak" ? `<p>Przyjmuję do wiadomości, że jeżeli ${WARUNEK}, zobowiązuję się do dopłaty ${B(odlVal())} podatku VAT od faktury za naprawę pojazdu.</p>` : "";
+const VAT_TXT = ()=> vatVal()==="tak" ? `<p>Oświadczam, że pojazd jest używany w działalności gospodarczej${NAZWAK()?` firmy ${B(NAZWAK())}`:""}${NIPK()?` (NIP ${B(NIPK())})`:""}, jestem płatnikiem VAT i odliczam ${B(odlVal())} podatku VAT.</p>`+DOPLATA() : "";
 const odlVal = ()=> (document.querySelector('input[name=odl]:checked')||{}).value||"100%";
 const B = s=>`<b>${esc(s)}</b>`;
 const SIG = (url,label)=>`<div class="sigbox">${url?`<img src="${url}" alt="Podpis">`:`<div style="height:70px"></div>`}<div class="sigline">${label}</div></div>`;
@@ -304,9 +321,10 @@ function docWlasne(sig){ return `
   <p>Jednocześnie przyjmuję do wiadomości, że upoważnienie może być cofnięte tylko za zgodą upoważnionego, oraz zobowiązuję się do zwrotu wszelkich kosztów naprawy w przypadku niewypłacenia odszkodowania przez Towarzystwo Ubezpieczeniowe.</p>
   <p>Wypłatę proszę przesłać na konto upoważnionego w ${esc(FIRMA.bank)}, nr rachunku: ${B(FIRMA.konto)}.</p>
   <p>Upoważniam też firmę ${esc(FIRMA.nazwa)} do wystawienia faktury VAT bez mojego podpisu za naprawę ww. pojazdu.</p>
+  ${VAT_TXT()}
   ${SIGS("data i podpis")}`; }
 
-function docEisOsoba(sig){ const vat = vatVal()==="tak" ? `jestem płatnikiem VAT i mogę odliczyć VAT od kosztów naprawy pojazdu w wysokości ${odlVal()}` : `nie jestem płatnikiem VAT i nie mogę odliczyć VAT od kosztów naprawy pojazdu`;
+function docEisOsoba(sig){ const vat = vatVal()==="tak" ? `jestem płatnikiem VAT${NIPK()?` (NIP ${NIPK()}${NAZWAK()?", "+NAZWAK():""})`:""} i mogę odliczyć VAT od kosztów naprawy pojazdu w wysokości ${odlVal()}` : `nie jestem płatnikiem VAT i nie mogę odliczyć VAT od kosztów naprawy pojazdu`;
   return `
   <div class="top"><div></div><div>Węgierska Górka, ${today}</div></div>
   <h3>Upoważnienie</h3>
@@ -318,7 +336,7 @@ function docEisOsoba(sig){ const vat = vatVal()==="tak" ? `jestem płatnikiem VA
   <p><b>2. Efficient Insurance Solutions sp. z o.o. z siedzibą w Gdańsku („EIS”)</b> do przyjęcia odszkodowania należnego mi od Ubezpieczyciela z tytułu likwidacji Szkody, po potwierdzeniu odpowiedzialności Ubezpieczyciela za Szkodę, na numer rachunku bankowego EIS: 68 1140 1065 0000 2066 8200 1011 oraz do przekazania otrzymanej kwoty do Serwisu tytułem zapłaty za usługi wykonane w ramach likwidacji Szkody tj. naprawę Pojazdu, wynajem pojazdu zastępczego, inne usługi związane z ww. naprawą i wynajmem. Ponadto upoważniam EIS do podejmowania innych niezbędnych czynności związanych z likwidacją Szkody, w tym:</p>
   <ol type="a"><li>uzyskiwania informacji oraz dokumentów dotyczących Szkody oraz wykonywanych usług;</li><li>przekazywania Serwisowi informacji o odmowie bądź przyjęciu przez Ubezpieczyciela odpowiedzialności za Szkodę oraz wysokości ustalonego i wypłaconego odszkodowania.</li></ol>
   <p class="small">Upoważnienie może być odwołane lub zmienione wyłącznie w formie pisemnej po wcześniejszym uzgodnieniu z Serwisem. W przypadku odwołania lub zmiany upoważnienia, zobowiązuję się uiścić wszelkie koszty poniesione przez Serwis (np. koszty przygotowania Pojazdu do oględzin, oględzin, wykonania kalkulacji, zakupionych części i wykonanych usług) w terminie do 7 dni od daty odwołania lub zmiany upoważnienia.</p>
-  <p>Oświadczam, że ${B(vat)}.</p>
+  <p>Oświadczam, że ${B(vat)}.</p>${DOPLATA()}
   ${SIGS("podpis")}`; }
 
 function docEisFirma(sig){ const F=FIRMA_KLIENTA; return `
@@ -400,11 +418,13 @@ async function wyslijJeden(body){ let last;
 function odswiezKrok(id){
   const k=KR[id], n=files[id].length, l=$("licz_"+id);
   if(k.ujecia){ l.textContent = n>=k.min ? `✓ Zrobione: ${Math.min(n,k.ujecia.length)} z ${k.ujecia.length}${n>k.ujecia.length?` (+${n-k.ujecia.length} dodatkowe)`:""}` : `Zrobione: ${n} z ${k.ujecia.length}`; }
+  else if(!k.min){ l.textContent = n ? `✓ Zdjęć: ${n}` : "Nieobowiązkowe – można pominąć"; }
   else { l.textContent = n>=k.min ? `✓ Zdjęć: ${n}` : `Zdjęć: ${n} (potrzeba co najmniej ${k.min})`; }
   l.classList.toggle("ok", n>=k.min);
   $("camLbl_"+id).textContent = n ? "Zrób więcej zdjęć" : "Zrób zdjęcia";
   if(k.rys) $("rys_"+id).innerHTML = rysAuto(n<k.ujecia.length ? k.ujecia[n][2] : -1);
-  document.querySelector(`[data-dalej="${id}"]`).disabled = n < k.min;
+  const dl=document.querySelector(`[data-dalej="${id}"]`); dl.disabled = n < k.min;
+  if(!k.min){ const wpis=(k.pola||[]).some(([p])=>$(p).value.trim()); dl.textContent = n||wpis ? "Dalej →" : "Nie mam – pomiń →"; }
 }
 
 /* ---- aparat w stronie ---- */
@@ -456,6 +476,7 @@ function zapasowy(id, odmowa){
 function alertMsg(id, t){ let p=$("msg_"+id); if(!p){ p=document.createElement("p"); p.id="msg_"+id; p.className="msg err"; $("licz_"+id).after(p); } p.textContent=t; }
 async function zGaleriiLubZapasu(id, lista){ const k=KR[id]; for(const f of lista){ const b=await shrink(f); if(!dodajZdjecie(k,b)) { alertMsg(id,`W tym kroku można dodać najwyżej ${k.max} zdjęć.`); break; } } odswiezKrok(id); }
 $("fZapas").addEventListener("change", e=>{ const id=e.target.dataset.k; zGaleriiLubZapasu(id,[...e.target.files]); e.target.value=""; });
+KROKI.forEach(k=>(k.pola||[]).forEach(([p])=>$(p).addEventListener("input",()=>odswiezKrok(k.id))));
 document.querySelectorAll("[data-cam]").forEach(b=>b.onclick=()=>otworzAparat(b.dataset.cam));
 document.querySelectorAll("[data-gal]").forEach(i=>i.addEventListener("change", e=>{ zGaleriiLubZapasu(i.dataset.gal,[...e.target.files]); e.target.value=""; }));
 
@@ -478,7 +499,7 @@ document.querySelectorAll(".wstecz").forEach(b=>b.onclick=()=>pokaz(krok-1));
 document.querySelectorAll("[data-dalej]").forEach(b=>b.onclick=()=>pokaz(krok+1));
 $("dalejPodpis").onclick = ()=>pokaz(krok+1);
 function podpisOk(){ return (pad1.has && (!$("wspOn").checked || ($("wspImie").value.trim() && pad2.has))) || files.papier.length>0; }
-function aktualizujPodpis(){ $("dalejPodpis").disabled = !podpisOk(); }
+function aktualizujPodpis(){ $("dalejPodpis").disabled = !podpisOk() || (vatVal()==="tak" && !NIPK()); }
 function podsumowanie(){ const n=KROKI.reduce((a,k)=>a+files[k.id].length,0);
   $("podsum").textContent = KLUCZ ? `Zdjęcia (${n}) są już wysyłane do warsztatu. Sprawdź telefon i naciśnij „Wyślij do warsztatu” – dojdą podpisane dokumenty.` : `Zrobione zdjęcia: ${n}. Sprawdź telefon i wyślij.`; }
 
@@ -571,8 +592,9 @@ function braki(){ const brak=[];
   if(!pad1.has && !files.papier.length) brak.push("podpis na upoważnieniu");
   if($("wspOn").checked && !$("wspImie").value.trim()) brak.push("imię i nazwisko współwłaściciela");
   if(WSP() && !pad2.has && !files.papier.length) brak.push("podpis współwłaściciela");
+  if(vatVal()==="tak" && !NIPK()) brak.push("NIP firmy");
   if(!$("rodo").checked) brak.push("zaznaczona zgoda"); return brak; }
-const tekstDla = (wiersz)=> `Dokumenty do szkody ${SZKODA.nr_szkody} – ${SZKODA.marka} ${SZKODA.model} ${SZKODA.nr_rej} – ${SZKODA.klient}`+(WSP()?` (współwł. ${WSP().imie}${WSP().adres?", "+WSP().adres:""})`:"")+(RODZAJ==="eis_osoba"?`${wiersz}VAT: ${vatVal()}${vatVal()==="tak"?" "+odlVal():""}`:"")+`${wiersz}Tel.: ${$("tel").value.trim()}`;
+const tekstDla = (wiersz)=> `Dokumenty do szkody ${SZKODA.nr_szkody} – ${SZKODA.marka} ${SZKODA.model} ${SZKODA.nr_rej} – ${SZKODA.klient}`+(WSP()?` (współwł. ${WSP().imie}${WSP().adres?", "+WSP().adres:""})`:"")+(RODZ_SZK?`${wiersz}Rodzaj szkody: ${RODZ_SZK}`:"")+(RODZAJ!=="eis_firma"?`${wiersz}Auto firmowe: ${vatVal()}${vatVal()==="tak"?` – ${NAZWAK()} NIP ${NIPK()}, odliczenie VAT ${odlVal()}`:""}`:"")+($("sprPolisa")?`${wiersz}Sprawca: polisa OC ${$("sprPolisa").value.trim().toUpperCase()||"–"}, nr rej. ${$("sprRej").value.trim().toUpperCase()||"–"}`:"")+`${wiersz}Tel.: ${$("tel").value.trim()}`;
 
 /* ---- wysyłka przez WhatsApp (udostępnianie plików z telefonu) ---- */
 $("wa").onclick = async ()=>{
