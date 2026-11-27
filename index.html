@@ -232,7 +232,7 @@ footer{font-size:12px;color:var(--muted);text-align:center}
   <div class="dol">
     <div class="mini" id="camMini"></div>
     <button type="button" class="spust" id="spust" aria-label="Zrób zdjęcie"></button>
-    <div class="prawa"><button type="button" class="latarka" id="latarka" hidden>🔦 Latarka</button><button type="button" class="latarka" id="obiektyw" hidden>🔄 Obiektyw</button><button type="button" class="gotowe" id="gotowe">Gotowe</button></div>
+    <div class="prawa"><button type="button" class="latarka" id="latarka" hidden>🔦 Latarka</button><button type="button" class="latarka" id="zLampa" hidden>⚡ Aparat z lampą</button><button type="button" class="latarka" id="obiektyw" hidden>🔄 Obiektyw</button><button type="button" class="gotowe" id="gotowe">Gotowe</button></div>
   </div>
 </div>
 <input type="file" id="fZapas" accept="image/*" capture="environment" hidden>
@@ -489,7 +489,7 @@ async function otworzAparat(id){
   try{ await v.play(); }catch(e){}
   $("camMini").innerHTML=""; files[id].filter(f=>f.blob).slice(-3).forEach(f=>{ const i=document.createElement("img"); i.src=f.el.querySelector("img").src; $("camMini").append(i); });
   latarkaOn=false; const tr=strumien.getVideoTracks()[0]; let cap={}; try{ cap=tr.getCapabilities?tr.getCapabilities():{}; }catch(e){}
-  $("latarka").hidden = !cap.torch; $("latarka").textContent="🔦 Latarka";
+  latarkaUstaw(cap);
 zoomInit(cap);
   camOpis();
 }
@@ -511,6 +511,13 @@ $("obiektyw").onclick = async ()=>{ if(tylneKamery.length<2 || !aktK) return;
   camDevId = tylneKamery[i].deviceId; const id=aktK.id;
   if(strumien){ strumien.getTracks().forEach(t=>t.stop()); strumien=null; }
   await otworzAparat(id); };
+/* latarka: część telefonów (Android) zgłasza ją dopiero po chwili – sprawdzamy kilka razy.
+   Gdy jej brak (np. iPhone) – przycisk „Aparat z lampą” otwiera zwykły aparat telefonu, który ma lampę błyskową. */
+function latarkaUstaw(cap){ const ma=!!(cap&&cap.torch); $("latarka").hidden=!ma; $("latarka").textContent="🔦 Latarka"; $("zLampa").hidden=ma;
+  if(!ma){ const s0=strumien; [500,1500].forEach(ms=>setTimeout(()=>{ if(!strumien||strumien!==s0||!$("latarka").hidden) return;
+    let c={}; try{ const t=strumien.getVideoTracks()[0]; c=t.getCapabilities?t.getCapabilities():{}; }catch(e){}
+    if(c.torch){ $("latarka").hidden=false; $("zLampa").hidden=true; } },ms)); } }
+$("zLampa").onclick = ()=>{ const id=aktK&&aktK.id; if(!id) return; zamknijAparat(); const inp=$("fZapas"); inp.dataset.k=id; inp.value=""; inp.click(); };
 $("latarka").onclick = async ()=>{ try{ latarkaOn=!latarkaOn; await strumien.getVideoTracks()[0].applyConstraints({advanced:[{torch:latarkaOn}]}); $("latarka").textContent = latarkaOn?"🔦 Wyłącz":"🔦 Latarka"; }catch(e){} };
 $("spust").onclick = ()=>{
   const v=$("vid"), w=v.videoWidth, h=v.videoHeight; if(!w||!h||!aktK) return;
