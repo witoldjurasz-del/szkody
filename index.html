@@ -57,6 +57,7 @@ section.step{background:var(--panel);border:1px solid var(--line);border-radius:
 .paper .small{font-size:12px;color:#444}
 .sigbox{margin-top:14px;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
 .sigbox img{height:70px;max-width:220px;object-fit:contain}
+.sigrow{display:flex;align-items:flex-end;gap:18px}.sigdata{font-size:15px;color:#1a2a6e;padding-bottom:8px;white-space:nowrap}
 .sigline{width:220px;max-width:100%;border-top:1px dotted #333;text-align:center;font-size:12px;color:#444;padding-top:2px}
 .pad{position:relative;border:1px solid var(--line);border-radius:10px;background:#fff;touch-action:none}
 .pad canvas{display:block;width:100%;height:170px;border-radius:10px;cursor:crosshair}
@@ -232,7 +233,7 @@ footer{font-size:12px;color:var(--muted);text-align:center}
   <div class="dol">
     <div class="mini" id="camMini"></div>
     <button type="button" class="spust" id="spust" aria-label="Zrób zdjęcie"></button>
-    <div class="prawa"><button type="button" class="latarka" id="latarka" hidden>🔦 Latarka</button><button type="button" class="latarka" id="zLampa" hidden>⚡ Aparat z lampą</button><button type="button" class="latarka" id="obiektyw" hidden>🔄 Obiektyw</button><button type="button" class="gotowe" id="gotowe">Gotowe</button></div>
+    <div class="prawa"><button type="button" class="latarka" id="latarka" hidden>🔦 Latarka</button><button type="button" class="latarka" id="zLampa" hidden>📷 Zwykły aparat (z lampą)</button><button type="button" class="latarka" id="obiektyw" hidden>🔄 Obiektyw</button><button type="button" class="gotowe" id="gotowe">Gotowe</button></div>
   </div>
 </div>
 <input type="file" id="fZapas" accept="image/*" capture="environment" hidden>
@@ -333,7 +334,7 @@ const DOPLATA = ()=> vatVal()==="tak" ? `<p>Przyjmuję do wiadomości, że jeże
 const VAT_TXT = ()=> vatVal()==="tak" ? `<p>Oświadczam, że pojazd jest używany w działalności gospodarczej${NAZWAK()?` firmy ${B(NAZWAK())}`:""}${NIPK()?` (NIP ${B(NIPK())})`:""}, jestem płatnikiem VAT i odliczam ${B(odlVal())} podatku VAT.</p>`+DOPLATA() : "";
 const odlVal = ()=> (document.querySelector('input[name=odl]:checked')||{}).value||"100%";
 const B = s=>`<b>${esc(s)}</b>`;
-const SIG = (url,label)=>`<div class="sigbox">${url?`<img src="${url}" alt="Podpis">`:`<div style="height:70px"></div>`}<div class="sigline">${label}</div></div>`;
+const SIG = (url,label)=>`<div class="sigbox">${url?`<div class="sigrow"><span class="sigdata">${today}</span><img src="${url}" alt="Podpis"></div>`:`<div style="height:70px"></div>`}<div class="sigline">${label}</div></div>`;
 const WSP = ()=>{ const n=$("wspImie").value.trim(); return $("wspOn").checked && n ? {imie:n, adres:$("wspAdres").value.trim()} : null; };
 const SIGS = (label)=>{ const w=WSP(); return w ? `<div class="sigs">${SIG(pad1.url(), label+" – "+esc(SZKODA.klient))}${SIG(pad2.url(), label+" – "+esc(w.imie))}</div>` : SIG(pad1.url(),label); };
 const SERWIS = `${esc(FIRMA.nazwa)}, ${esc(FIRMA.adres)}, NIP 553-212-63-07`;
@@ -513,7 +514,7 @@ $("obiektyw").onclick = async ()=>{ if(tylneKamery.length<2 || !aktK) return;
   await otworzAparat(id); };
 /* latarka: część telefonów (Android) zgłasza ją dopiero po chwili – sprawdzamy kilka razy.
    Gdy jej brak (np. iPhone) – przycisk „Aparat z lampą” otwiera zwykły aparat telefonu, który ma lampę błyskową. */
-function latarkaUstaw(cap){ const ma=!!(cap&&cap.torch); $("latarka").hidden=!ma; $("latarka").textContent="🔦 Latarka"; $("zLampa").hidden=ma;
+function latarkaUstaw(cap){ const ma=!!(cap&&cap.torch); $("latarka").hidden=!ma; $("latarka").textContent="🔦 Latarka"; $("zLampa").hidden=ma; $("zLampa").title = ma ? "" : "Ta przeglądarka nie pozwala włączyć latarki – zwykły aparat telefonu ma lampę błyskową";
   if(!ma){ const s0=strumien; [500,1500].forEach(ms=>setTimeout(()=>{ if(!strumien||strumien!==s0||!$("latarka").hidden) return;
     let c={}; try{ const t=strumien.getVideoTracks()[0]; c=t.getCapabilities?t.getCapabilities():{}; }catch(e){}
     if(c.torch){ $("latarka").hidden=false; $("zLampa").hidden=true; } },ms)); } }
