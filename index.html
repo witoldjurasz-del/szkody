@@ -93,6 +93,11 @@ footer{font-size:12px;color:var(--muted);text-align:center}
 .licz.ok{color:var(--ok)}
 .cambtn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;font-size:19px;padding:18px;background:var(--accent);color:var(--accent-ink);border:0;border-radius:12px;font-weight:700}
 .galeria{display:block;text-align:center;font-size:14px;color:var(--muted);text-decoration:underline;cursor:pointer;padding:6px}
+.dwa{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dwa .cambtn,.dwa .galkafel{flex-direction:column;gap:6px;min-height:104px;padding:14px 8px;font-size:18px;line-height:1.2;text-align:center}
+.dwa .cambtn .ik,.dwa .galkafel .ik{font-size:30px;line-height:1}
+.galkafel{display:flex;align-items:center;justify-content:center;width:100%;background:var(--panel);color:var(--ink);border:2px solid var(--accent);border-radius:12px;font-weight:700;cursor:pointer;position:relative}
+.galkafel input{position:absolute;opacity:0;width:1px;height:1px}
 .galeria input{position:absolute;opacity:0;width:1px;height:1px}
 .thumbs .t{position:relative}
 .thumbs .t img,.thumbs .t .ph0{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;border:1px solid var(--line);display:block}
@@ -122,6 +127,26 @@ footer{font-size:12px;color:var(--muted);text-align:center}
 #cam .latarka{background:transparent;color:#fff;border:1px solid #666;padding:6px 10px;font-size:14px}
 #cam .blysk{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;transition:opacity .25s}
 #cam .blysk.on{opacity:.8;transition:none}
+#cam .zoom{display:flex;align-items:center;gap:6px}
+#cam .zoom button{width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;border:1px solid #777;font-size:22px;font-weight:700;padding:0;line-height:1}
+#cam .zoom button:disabled{opacity:.35}
+#cam .zoom span{min-width:42px;text-align:center;font-weight:700;font-size:15px;text-shadow:0 1px 3px #000}
+#cam .zoomBox{position:absolute;left:50%;transform:translateX(-50%);bottom:170px;z-index:2}
+#cam video{transform-origin:center center}
+/* telefon poziomo: podgląd na cały ekran, przyciski w kolumnie po prawej, opis mały u góry */
+@media (orientation:landscape){
+#cam video{position:absolute;inset:0;width:100%;height:100%}
+#cam .gora{right:120px;padding:calc(6px + env(safe-area-inset-top,0px)) 12px 6px calc(12px + env(safe-area-inset-left,0px))}
+#cam .gora .txt{font-size:15px} #cam .gora .txt small{font-size:12px;margin-top:2px}
+#cam .gora svg{width:44px}
+#cam .dol{position:absolute;top:0;bottom:0;right:0;width:110px;display:flex;flex-direction:column;justify-content:space-between;align-items:center;padding:10px calc(8px + env(safe-area-inset-right,0px)) 10px 8px;background:rgba(0,0,0,.45)}
+#cam .mini{flex-direction:column} #cam .mini img{width:34px;height:34px}
+#cam .spust{width:66px;height:66px}
+#cam .prawa{align-items:center}
+#cam .gotowe{font-size:14px;padding:8px 10px}
+#cam .licznik{bottom:12px;left:calc(50% - 55px)}
+#cam .zoomBox{bottom:52px;left:calc(50% - 55px)}
+}
 #cam .licznik{position:absolute;left:50%;transform:translateX(-50%);bottom:130px;background:rgba(0,0,0,.6);padding:4px 12px;border-radius:14px;font-weight:700}
 </style>
 </head>
@@ -202,11 +227,12 @@ footer{font-size:12px;color:var(--muted);text-align:center}
   <video id="vid" playsinline muted autoplay></video>
   <div class="gora"><div class="txt" id="camTxt"></div><div id="camRys"></div></div>
   <div class="licznik" id="camLicz"></div>
+<div class="zoomBox zoom" id="zoomBox"><button type="button" id="zMinus" aria-label="Oddal">−</button><span id="zTxt">1×</span><button type="button" id="zPlus" aria-label="Przybliż">+</button></div>
   <div class="blysk" id="blysk"></div>
   <div class="dol">
     <div class="mini" id="camMini"></div>
     <button type="button" class="spust" id="spust" aria-label="Zrób zdjęcie"></button>
-    <div class="prawa"><button type="button" class="latarka" id="latarka" hidden>🔦 Latarka</button><button type="button" class="gotowe" id="gotowe">Gotowe</button></div>
+    <div class="prawa"><button type="button" class="latarka" id="latarka" hidden>🔦 Latarka</button><button type="button" class="latarka" id="obiektyw" hidden>🔄 Obiektyw</button><button type="button" class="gotowe" id="gotowe">Gotowe</button></div>
   </div>
 </div>
 <input type="file" id="fZapas" accept="image/*" capture="environment" hidden>
@@ -247,8 +273,8 @@ document.getElementById("fotoKroki").innerHTML = KROKI.map(k=>`
     ${k.rys?`<div class="auto" id="rys_${k.id}" style="color:var(--ink)"></div>`:""}
     ${(k.pola||[]).map(([id,l])=>`<label class="f" for="${id}">${l}<input type="text" id="${id}" autocomplete="off" style="text-transform:uppercase"></label>`).join("")}
     <div class="licz" id="licz_${k.id}"></div>
-    <button type="button" class="cambtn" data-cam="${k.id}">📷 <span id="camLbl_${k.id}">Zrób zdjęcia</span></button>
-    <label class="galeria"><input type="file" accept="image/*" multiple data-gal="${k.id}">albo dodaj zdjęcia z galerii telefonu</label>
+    <div class="dwa"><button type="button" class="cambtn" data-cam="${k.id}"><span class="ik">📷</span><span id="camLbl_${k.id}">Zrób zdjęcia</span></button>
+    <label class="galkafel"><input type="file" accept="image/*" multiple data-gal="${k.id}"><span class="ik">🖼️</span><span>Dodaj z galerii</span></label></div>
     <div class="thumbs" id="th_${k.id}"></div>
     <div class="nav"><button type="button" class="wstecz">← Wstecz</button><button type="button" class="dalej" data-dalej="${k.id}" disabled>Dalej →</button></div>
   </section>`).join("");
@@ -428,7 +454,18 @@ function odswiezKrok(id){
 }
 
 /* ---- aparat w stronie ---- */
-let strumien=null, aktK=null, latarkaOn=false;
+let strumien=null, aktK=null, latarkaOn=false, camDevId=null, tylneKamery=[];
+/* pełny ekran przy aparacie – chowa paski przeglądarki (zwłaszcza poziomo) */
+function pelnyEkran(wl){ try{ const d=document, el=d.documentElement;
+  if(wl){ if(!d.fullscreenElement && el.requestFullscreen) el.requestFullscreen({navigationUI:"hide"}).catch(()=>{}); }
+  else if(d.fullscreenElement && d.exitFullscreen) d.exitFullscreen().catch(()=>{}); }catch(e){} }
+/* przełączanie obiektywów tylnych (szeroki / zwykły / tele), jeśli telefon je udostępnia */
+async function obiektywyInit(){ try{
+  const urz=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==="videoinput");
+  tylneKamery = urz.filter(d=>!/front|przedni|user|facing front|selfie/i.test(d.label));
+  if(tylneKamery.length<2) tylneKamery = urz.length>1 ? urz : [];
+  $("obiektyw").hidden = tylneKamery.length<2;
+}catch(e){ $("obiektyw").hidden=true; } }
 function camOpis(){ const k=aktK, n=files[k.id].length;
   let txt = k.tytul, sub = "";
   if(k.ujecia && n<k.ujecia.length){ txt = k.ujecia[n][0]; sub = `${k.tytul} – zdjęcie ${n+1} z ${k.ujecia.length}`; }
@@ -445,23 +482,43 @@ async function otworzAparat(id){
   aktK = KR[id];
   if(!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) return zapasowy(id);
   try{
-    strumien = await navigator.mediaDevices.getUserMedia({audio:false, video:{facingMode:{ideal:"environment"}, width:{ideal:1920}, height:{ideal:1080}}});
-  }catch(e){ return zapasowy(id, e && e.name==="NotAllowedError"); }
+    strumien = await navigator.mediaDevices.getUserMedia({audio:false, video: camDevId ? {deviceId:{exact:camDevId}, width:{ideal:1920}, height:{ideal:1080}} : {facingMode:{ideal:"environment"}, width:{ideal:1920}, height:{ideal:1080}}});
+  }catch(e){ if(camDevId){ camDevId=null; return otworzAparat(id); } return zapasowy(id, e && e.name==="NotAllowedError"); }
+  pelnyEkran(true); obiektywyInit();
   const v=$("vid"); v.srcObject=strumien; $("cam").hidden=false; document.body.style.overflow="hidden";
   try{ await v.play(); }catch(e){}
   $("camMini").innerHTML=""; files[id].filter(f=>f.blob).slice(-3).forEach(f=>{ const i=document.createElement("img"); i.src=f.el.querySelector("img").src; $("camMini").append(i); });
   latarkaOn=false; const tr=strumien.getVideoTracks()[0]; let cap={}; try{ cap=tr.getCapabilities?tr.getCapabilities():{}; }catch(e){}
   $("latarka").hidden = !cap.torch; $("latarka").textContent="🔦 Latarka";
+zoomInit(cap);
   camOpis();
 }
-function zamknijAparat(){ if(strumien){ strumien.getTracks().forEach(t=>t.stop()); strumien=null; } $("cam").hidden=true; document.body.style.overflow=""; if(aktK) odswiezKrok(aktK.id); }
+/* zoom: sprzętowy gdy telefon pozwala, inaczej cyfrowy (powiększenie podglądu + kadrowanie zdjęcia) */
+let zoomHW=null, zoomLvl=1;
+function zoomInit(cap){ zoomLvl=1; zoomHW = (cap && cap.zoom && cap.zoom.max>cap.zoom.min) ? {min:cap.zoom.min, max:Math.min(cap.zoom.max,8)} : null; if(zoomHW) zoomLvl=Math.max(1,zoomHW.min); zoomUstaw(zoomLvl); }
+async function zoomUstaw(z){ const min=zoomHW?zoomHW.min:1, max=zoomHW?zoomHW.max:4; z=Math.round(Math.min(max,Math.max(min,z))*10)/10; zoomLvl=z;
+ const v=$("vid");
+ if(zoomHW){ v.style.transform=""; try{ await strumien.getVideoTracks()[0].applyConstraints({advanced:[{zoom:z}]}); }catch(e){} }
+ else v.style.transform = z>1 ? `scale(${z})` : "";
+ $("zTxt").textContent = (z%1?z.toFixed(1):z)+"×"; $("zMinus").disabled = z<=min; $("zPlus").disabled = z>=max; }
+$("zPlus").onclick = ()=>zoomUstaw(zoomLvl + (zoomLvl<2?0.5:1));
+$("zMinus").onclick = ()=>zoomUstaw(zoomLvl - (zoomLvl<=2?0.5:1));
+function zamknijAparat(){ $("vid").style.transform=""; pelnyEkran(false); if(strumien){ strumien.getTracks().forEach(t=>t.stop()); strumien=null; } $("cam").hidden=true; document.body.style.overflow=""; if(aktK) odswiezKrok(aktK.id); }
 $("gotowe").onclick = zamknijAparat;
+$("obiektyw").onclick = async ()=>{ if(tylneKamery.length<2 || !aktK) return;
+  const teraz = strumien && strumien.getVideoTracks()[0].getSettings().deviceId;
+  let i = tylneKamery.findIndex(d=>d.deviceId===teraz); i = (i+1) % tylneKamery.length;
+  camDevId = tylneKamery[i].deviceId; const id=aktK.id;
+  if(strumien){ strumien.getTracks().forEach(t=>t.stop()); strumien=null; }
+  await otworzAparat(id); };
 $("latarka").onclick = async ()=>{ try{ latarkaOn=!latarkaOn; await strumien.getVideoTracks()[0].applyConstraints({advanced:[{torch:latarkaOn}]}); $("latarka").textContent = latarkaOn?"🔦 Wyłącz":"🔦 Latarka"; }catch(e){} };
 $("spust").onclick = ()=>{
   const v=$("vid"), w=v.videoWidth, h=v.videoHeight; if(!w||!h||!aktK) return;
   if(files[aktK.id].length >= aktK.max){ $("camTxt").innerHTML = `Wystarczy zdjęć w tym kroku<small>Naciśnij „Gotowe”</small>`; return; }
   const s=Math.min(1,1920/Math.max(w,h)), c=document.createElement("canvas"); c.width=Math.round(w*s); c.height=Math.round(h*s);
-  c.getContext("2d").drawImage(v,0,0,c.width,c.height);
+  const dz = (!zoomHW && zoomLvl>1) ? zoomLvl : 1;
+if(dz>1){ const sw=w/dz, sh=h/dz; c.getContext("2d").drawImage(v,(w-sw)/2,(h-sh)/2,sw,sh,0,0,c.width,c.height); }
+else c.getContext("2d").drawImage(v,0,0,c.width,c.height);
   const bl=$("blysk"); bl.classList.add("on"); setTimeout(()=>bl.classList.remove("on"),60); try{ navigator.vibrate && navigator.vibrate(30); }catch(e){}
   c.toBlob(b=>{ if(!b) return; const k=aktK; dodajZdjecie(k,b);
     const i=document.createElement("img"); i.src=URL.createObjectURL(b); const m=$("camMini"); m.append(i); while(m.children.length>3) m.firstChild.remove();
